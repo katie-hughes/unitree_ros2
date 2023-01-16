@@ -5,11 +5,12 @@ Launches rviz with the go1 urdf file.
 
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import DeclareLaunchArgument, Shutdown, SetLaunchConfiguration
+from launch.actions import DeclareLaunchArgument, Shutdown, SetLaunchConfiguration, IncludeLaunchDescription
 from launch_ros.parameter_descriptions import ParameterValue
-from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution, TextSubstitution
+from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
 from launch.conditions import LaunchConfigurationEquals
 from launch_ros.substitutions import FindPackageShare
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 
 def generate_launch_description():
@@ -20,6 +21,9 @@ def generate_launch_description():
         DeclareLaunchArgument(name='use_rviz', default_value='true',
                               choices=['true', 'false'],
                               description='Choose if rviz is launched'),
+       DeclareLaunchArgument(name='use_gz', default_value='true',
+                              choices=['true', 'false'],
+                              description='Choose if gazebo is launched'),
 
         SetLaunchConfiguration(name='config_file',
                                value='go1.rviz'),
@@ -53,5 +57,21 @@ def generate_launch_description():
              name='rviz2',
              arguments=['-d', LaunchConfiguration('rvizconfig')],
              condition=LaunchConfigurationEquals('use_rviz', 'true'),
-             on_exit = Shutdown())
+             on_exit = Shutdown()),
+
+     IncludeLaunchDescription(
+          PythonLaunchDescriptionSource(
+               PathJoinSubstitution([FindPackageShare('ros_ign_gazebo'),
+                                                           'launch',
+                                                           'ign_gazebo.launch.py'])),
+          condition=LaunchConfigurationEquals('use_gz', 'true')),
+          # launch_arguments={'ign_args': '-r '+str(world_path)}.items()),
+
+     Node(package='ros_ign_gazebo',
+          executable='create',
+          arguments=['-name', 'go1',
+                    '-topic', 'robot_description',
+                    '-z', '5.0'],
+          output='screen',
+          condition=LaunchConfigurationEquals('use_gz', 'true'))
     ])
