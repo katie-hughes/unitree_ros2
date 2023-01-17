@@ -25,7 +25,10 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/unitree_legged_sdk-master/include
 )
 
-
+install(
+ DIRECTORY ${CMAKE_SOURCE_DIR}/unitree_legged_sdk-master/lib/
+ DESTINATION lib
+)
 
 link_directories(${CMAKE_SOURCE_DIR}/unitree_legged_sdk-master/lib)
 
