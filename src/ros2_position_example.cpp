@@ -57,54 +57,64 @@ int main(int argc, char **argv)
             low_cmd_ros.motor_cmd[RL_0].tau = +0.65f;
 
             // Edited to try moving all legs at the same time!
-            low_cmd_ros.motor_cmd[FR_2].q = -M_PI / 2 + 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+            double calf_1 = -M_PI / 2; // + 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+            double calf_2 = -M_PI / 2; // - 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+            // it has major issues with using the logger... idk why
+            // std::cout << "calf_1:" << calf_1 << std::endl;
+            double thigh_1 = 0; // + 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+            double thigh_2 = 0; // + -0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+            // std::cout << "thigh_1:" << thigh_1 << std::endl;
+            double hip_1 =  0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+            double hip_2 = -0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+
+            low_cmd_ros.motor_cmd[FR_2].q = calf_1;
             low_cmd_ros.motor_cmd[FR_2].dq = 0.0;
             low_cmd_ros.motor_cmd[FR_2].kp = 5.0;
             low_cmd_ros.motor_cmd[FR_2].kd = 1.0;
-            low_cmd_ros.motor_cmd[FR_0].q = 0.0;
+            low_cmd_ros.motor_cmd[FR_0].q = hip_1;
             low_cmd_ros.motor_cmd[FR_0].dq = 0.0;
             low_cmd_ros.motor_cmd[FR_0].kp = 5.0;
             low_cmd_ros.motor_cmd[FR_0].kd = 1.0;
-            low_cmd_ros.motor_cmd[FR_1].q = 0.0;
+            low_cmd_ros.motor_cmd[FR_1].q = thigh_1;
             low_cmd_ros.motor_cmd[FR_1].dq = 0.0;
             low_cmd_ros.motor_cmd[FR_1].kp = 5.0;
             low_cmd_ros.motor_cmd[FR_1].kd = 1.0;
 
-            low_cmd_ros.motor_cmd[FL_2].q = -M_PI / 2 + 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+            low_cmd_ros.motor_cmd[FL_2].q = calf_2;
             low_cmd_ros.motor_cmd[FL_2].dq = 0.0;
             low_cmd_ros.motor_cmd[FL_2].kp = 5.0;
             low_cmd_ros.motor_cmd[FL_2].kd = 1.0;
-            low_cmd_ros.motor_cmd[FL_0].q = 0.0;
+            low_cmd_ros.motor_cmd[FL_0].q = hip_2;
             low_cmd_ros.motor_cmd[FL_0].dq = 0.0;
             low_cmd_ros.motor_cmd[FL_0].kp = 5.0;
             low_cmd_ros.motor_cmd[FL_0].kd = 1.0;
-            low_cmd_ros.motor_cmd[FL_1].q = 0.0;
+            low_cmd_ros.motor_cmd[FL_1].q = thigh_2;
             low_cmd_ros.motor_cmd[FL_1].dq = 0.0;
             low_cmd_ros.motor_cmd[FL_1].kp = 5.0;
             low_cmd_ros.motor_cmd[FL_1].kd = 1.0;
 
-            low_cmd_ros.motor_cmd[RR_2].q = -M_PI / 2 + 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+            low_cmd_ros.motor_cmd[RR_2].q = calf_2;
             low_cmd_ros.motor_cmd[RR_2].dq = 0.0;
             low_cmd_ros.motor_cmd[RR_2].kp = 5.0;
             low_cmd_ros.motor_cmd[RR_2].kd = 1.0;
-            low_cmd_ros.motor_cmd[RR_0].q = 0.0;
+            low_cmd_ros.motor_cmd[RR_0].q = hip_1;
             low_cmd_ros.motor_cmd[RR_0].dq = 0.0;
             low_cmd_ros.motor_cmd[RR_0].kp = 5.0;
             low_cmd_ros.motor_cmd[RR_0].kd = 1.0;
-            low_cmd_ros.motor_cmd[RR_1].q = 0.0;
+            low_cmd_ros.motor_cmd[RR_1].q = thigh_2;
             low_cmd_ros.motor_cmd[RR_1].dq = 0.0;
             low_cmd_ros.motor_cmd[RR_1].kp = 5.0;
             low_cmd_ros.motor_cmd[RR_1].kd = 1.0;
 
-            low_cmd_ros.motor_cmd[RL_2].q = -M_PI / 2 + 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+            low_cmd_ros.motor_cmd[RL_2].q = calf_1;
             low_cmd_ros.motor_cmd[RL_2].dq = 0.0;
             low_cmd_ros.motor_cmd[RL_2].kp = 5.0;
             low_cmd_ros.motor_cmd[RL_2].kd = 1.0;
-            low_cmd_ros.motor_cmd[RL_0].q = 0.0;
+            low_cmd_ros.motor_cmd[RL_0].q = hip_2;
             low_cmd_ros.motor_cmd[RL_0].dq = 0.0;
             low_cmd_ros.motor_cmd[RL_0].kp = 5.0;
             low_cmd_ros.motor_cmd[RL_0].kd = 1.0;
-            low_cmd_ros.motor_cmd[RL_1].q = 0.0;
+            low_cmd_ros.motor_cmd[RL_1].q = thigh_1;
             low_cmd_ros.motor_cmd[RL_1].dq = 0.0;
             low_cmd_ros.motor_cmd[RL_1].kp = 5.0;
             low_cmd_ros.motor_cmd[RL_1].kd = 1.0;
