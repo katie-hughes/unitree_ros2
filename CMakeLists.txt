@@ -44,15 +44,16 @@ add_executable(ros2_position_example src/ros2_position_example.cpp)
 target_link_libraries(ros2_position_example ${EXTRA_LIBS})
 ament_target_dependencies(ros2_position_example rclcpp ros2_unitree_legged_msgs)
 
+add_executable(custom_gait src/custom_gait.cpp)
+target_link_libraries(custom_gait ${EXTRA_LIBS})
+ament_target_dependencies(custom_gait rclcpp ros2_unitree_legged_msgs)
+
 install(TARGETS
     ros2_udp
     ros2_walk_example
     ros2_position_example
+    custom_gait
     DESTINATION lib/${PROJECT_NAME}
 )
 
 ament_package()
-
-
-
-
