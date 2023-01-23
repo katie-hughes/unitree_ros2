@@ -39,9 +39,14 @@ class CustomGait : public rclcpp::Node
   private:
     void timer_callback()
     {
-      RCLCPP_INFO_STREAM(get_logger(), "Timer tick!");
-      if (initiated_flag)
-      {
+      // RCLCPP_INFO_STREAM(get_logger(), "Timer tick!");
+      if (!initiated_flag){
+        RCLCPP_INFO_STREAM(get_logger(), "Waiting");
+        count++;
+        if (count>10){
+          initiated_flag = true;
+        }
+      }else{
           motiontime += 2;
           RCLCPP_INFO_STREAM(get_logger(), "Initiated");
           low_cmd_ros.motor_cmd[FR_0].tau = -0.65f;
@@ -60,12 +65,6 @@ class CustomGait : public rclcpp::Node
           low_cmd_ros.motor_cmd[FR_1].dq = 0.0;
           low_cmd_ros.motor_cmd[FR_1].kp = 5.0;
           low_cmd_ros.motor_cmd[FR_1].kd = 1.0;
-      }
-      count++;
-      if (count > 10)
-      {
-          count = 10;
-          initiated_flag = true;
       }
       cmd_pub_->publish(low_cmd_ros);
     }
