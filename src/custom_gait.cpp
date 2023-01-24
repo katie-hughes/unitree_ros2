@@ -20,7 +20,7 @@ class CustomGait : public rclcpp::Node
     {
       cmd_pub_ = this->create_publisher<ros2_unitree_legged_msgs::msg::LowCmd>("low_cmd", 10);
       timer_ = this->create_wall_timer(
-        500ms,
+        2ms,
         std::bind(&CustomGait::timer_callback, this));
       // initialize low_cmd fields
       low_cmd_ros.head[0] = 0xFE;
@@ -43,28 +43,69 @@ class CustomGait : public rclcpp::Node
       if (!initiated_flag){
         RCLCPP_INFO_STREAM(get_logger(), "Waiting");
         count++;
-        if (count>10){
+        if (count>100){
           initiated_flag = true;
         }
       }else{
           motiontime += 2;
           RCLCPP_INFO_STREAM(get_logger(), "Initiated");
-          low_cmd_ros.motor_cmd[FR_0].tau = -0.65f;
-          low_cmd_ros.motor_cmd[FL_0].tau = +0.65f;
-          low_cmd_ros.motor_cmd[RR_0].tau = -0.65f;
-          low_cmd_ros.motor_cmd[RL_0].tau = +0.65f;
-          low_cmd_ros.motor_cmd[FR_2].q = -M_PI / 2 + 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+          double calf_1 = -M_PI / 2 + 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+          double calf_2 = -M_PI / 2 - 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+          double thigh_1 =  0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+          double thigh_2 = -0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+          double hip_1 = 0;// 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+          double hip_2 = 0;//-0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+          low_cmd_ros.motor_cmd[FR_2].q = calf_1;
           low_cmd_ros.motor_cmd[FR_2].dq = 0.0;
           low_cmd_ros.motor_cmd[FR_2].kp = 5.0;
           low_cmd_ros.motor_cmd[FR_2].kd = 1.0;
-          low_cmd_ros.motor_cmd[FR_0].q = 0.0;
+          low_cmd_ros.motor_cmd[FR_0].q = hip_1;
           low_cmd_ros.motor_cmd[FR_0].dq = 0.0;
           low_cmd_ros.motor_cmd[FR_0].kp = 5.0;
           low_cmd_ros.motor_cmd[FR_0].kd = 1.0;
-          low_cmd_ros.motor_cmd[FR_1].q = 0.0;
+          low_cmd_ros.motor_cmd[FR_1].q = thigh_1;
           low_cmd_ros.motor_cmd[FR_1].dq = 0.0;
           low_cmd_ros.motor_cmd[FR_1].kp = 5.0;
           low_cmd_ros.motor_cmd[FR_1].kd = 1.0;
+
+          low_cmd_ros.motor_cmd[FL_2].q = calf_2;
+          low_cmd_ros.motor_cmd[FL_2].dq = 0.0;
+          low_cmd_ros.motor_cmd[FL_2].kp = 5.0;
+          low_cmd_ros.motor_cmd[FL_2].kd = 1.0;
+          low_cmd_ros.motor_cmd[FL_0].q = hip_2;
+          low_cmd_ros.motor_cmd[FL_0].dq = 0.0;
+          low_cmd_ros.motor_cmd[FL_0].kp = 5.0;
+          low_cmd_ros.motor_cmd[FL_0].kd = 1.0;
+          low_cmd_ros.motor_cmd[FL_1].q = thigh_2;
+          low_cmd_ros.motor_cmd[FL_1].dq = 0.0;
+          low_cmd_ros.motor_cmd[FL_1].kp = 5.0;
+          low_cmd_ros.motor_cmd[FL_1].kd = 1.0;
+
+          low_cmd_ros.motor_cmd[RR_2].q = calf_2;
+          low_cmd_ros.motor_cmd[RR_2].dq = 0.0;
+          low_cmd_ros.motor_cmd[RR_2].kp = 5.0;
+          low_cmd_ros.motor_cmd[RR_2].kd = 1.0;
+          low_cmd_ros.motor_cmd[RR_0].q = hip_1;
+          low_cmd_ros.motor_cmd[RR_0].dq = 0.0;
+          low_cmd_ros.motor_cmd[RR_0].kp = 5.0;
+          low_cmd_ros.motor_cmd[RR_0].kd = 1.0;
+          low_cmd_ros.motor_cmd[RR_1].q = thigh_2;
+          low_cmd_ros.motor_cmd[RR_1].dq = 0.0;
+          low_cmd_ros.motor_cmd[RR_1].kp = 5.0;
+          low_cmd_ros.motor_cmd[RR_1].kd = 1.0;
+
+          low_cmd_ros.motor_cmd[RL_2].q = calf_1;
+          low_cmd_ros.motor_cmd[RL_2].dq = 0.0;
+          low_cmd_ros.motor_cmd[RL_2].kp = 5.0;
+          low_cmd_ros.motor_cmd[RL_2].kd = 1.0;
+          low_cmd_ros.motor_cmd[RL_0].q = hip_2;
+          low_cmd_ros.motor_cmd[RL_0].dq = 0.0;
+          low_cmd_ros.motor_cmd[RL_0].kp = 5.0;
+          low_cmd_ros.motor_cmd[RL_0].kd = 1.0;
+          low_cmd_ros.motor_cmd[RL_1].q = thigh_1;
+          low_cmd_ros.motor_cmd[RL_1].dq = 0.0;
+          low_cmd_ros.motor_cmd[RL_1].kp = 5.0;
+          low_cmd_ros.motor_cmd[RL_1].kd = 1.0;
       }
       cmd_pub_->publish(low_cmd_ros);
     }
