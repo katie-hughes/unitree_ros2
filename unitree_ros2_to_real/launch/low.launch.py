@@ -1,6 +1,6 @@
 
 """
-Launches low level go controls
+Launches low level go controls for the go1
 """
 
 from launch import LaunchDescription
@@ -15,13 +15,6 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 def generate_launch_description():
      return LaunchDescription([
-
-          IncludeLaunchDescription(
-               PythonLaunchDescriptionSource(
-                    PathJoinSubstitution([FindPackageShare('go1_description'),
-                                                           'launch',
-                                                           'visualize.launch.py'])),
-              launch_arguments=[('use_jsp', 'none')]),
 
           Node(package='unitree_legged_real',
                executable='custom_udp',
