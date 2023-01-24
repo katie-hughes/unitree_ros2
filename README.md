@@ -12,12 +12,16 @@ into the same `unitree_ws/src` space.
 ## How to run
 1. In `unitree_ws`, run `colcon build`. There is a warning about `BOOST_PRAGMA_MESSAGE` that I do not know how to resolve at the moment, but otherwise should build without error.
 2. In another terminal, run `source install/setup.bash`
+   
+   (Ensure that the dog is raised off the ground in the harness before executing the next steps!! Before raising it off the floor, you will need to press L2+A to sit the robot down and then L1+L2+start to put the robot into the correct mode -- otherwise, the robot will flail its legs when it leaves the floor.)
+
 3. If you want to purely run the controls, run `ros2 launch unitree_legged_real low.launch.py`
 4. If you want to run the controls plus the visualization in rviz, run `ros2 launch unitree_legged_real low_visualize.launch.py`
 
-## Executables:
-* `ros2_position_example` (Unitree): Example for showing how to publish joint positions.
-* `custom_gait` (me): This takes the framework defined in Unitree's `ros2_position_example` and translates it into a more traditional ros2 C++ node. This also enables multi-joint control.
-* `ros2_udp` (Unitree): This is a "bridge" between ros2 unitree messages and Unitree's UDP, which communicates directly with the microprocessor.
+## My Executables:
+Again, before running any low level controls, ensure that the dog is safely raised off the ground in the harness.
 * `custom_udp`: This takes the framework defined in Unitree's `ros2_udp` and translates it into a more traditional ros2 C++ node. Additionally, this also fixes a bug where you can only read robot state messages if you are currently publishing joint commands. Finally, this also adds a joint state publisher that is connected to the joint messages received for visualizaiton in rviz.
+* `custom_gait`: This takes the framework defined in Unitree's `ros2_position_example` and translates it into a more traditional ros2 C++ node. This also enables multi-joint control. In the future it will also subscribe to the `low_state` message from the Go1 in order for more precise control. In order for this node to physically move the dog, `custom_udp` must also be running.
+
+
 
