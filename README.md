@@ -25,3 +25,9 @@ Again, before running any low level controls, ensure that the dog is safely rais
 
 
 
+
+### Launch Arguments:
+  * `use_jsp`: Choose if joint_state_publisher is launched. Valid choices are: ['gui', 'jsp', 'none']. Default is 'gui'.
+  * `use_rviz`: Choose if rviz is launched. Valid choices are: ['true', 'false']. Default is 'true'.
+  * `use_gz`: Choose if gazebo is launched. Valid choices are: ['true', 'false']. Default is 'false'.
+    * Gazebo currently is not functional with the meshes.
