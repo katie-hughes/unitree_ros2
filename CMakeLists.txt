@@ -7,6 +7,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 
 find_package(ros2_unitree_legged_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 
 message("-- CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
@@ -38,7 +39,7 @@ ament_target_dependencies(ros2_udp rclcpp ros2_unitree_legged_msgs)
 
 add_executable(custom_udp src/custom_udp.cpp)
 target_link_libraries(custom_udp ${EXTRA_LIBS})
-ament_target_dependencies(custom_udp rclcpp ros2_unitree_legged_msgs)
+ament_target_dependencies(custom_udp rclcpp ros2_unitree_legged_msgs sensor_msgs)
 
 add_executable(ros2_walk_example src/ros2_walk_example.cpp)
 target_link_libraries(ros2_walk_example ${EXTRA_LIBS})

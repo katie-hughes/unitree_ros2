@@ -4,7 +4,10 @@
 #include "ros2_unitree_legged_msgs/msg/low_cmd.hpp"
 #include "ros2_unitree_legged_msgs/msg/low_state.hpp"
 #include "unitree_legged_sdk/unitree_legged_sdk.h"
+#include "sensor_msgs/msg/joint_state.hpp"
 #include "convert.h"
+#include <string>
+#include <vector>
 
 using namespace UNITREE_LEGGED_SDK;
 class Custom
@@ -42,24 +45,39 @@ class LL_UDP : public rclcpp::Node
       pub_low_ = this->create_publisher<ros2_unitree_legged_msgs::msg::LowState>("low_state", 10);
       sub_low_ = this->create_subscription<ros2_unitree_legged_msgs::msg::LowCmd>("low_cmd", 10,
         std::bind(&LL_UDP::low_cmd_cb, this, std::placeholders::_1));
+      js.name = {"FR_hip_joint",
+                 "FR_thigh_joint",
+                 "FR_calf_joint",
+                 "FL_hip_joint",
+                 "FL_thigh_joint",
+                 "FL_calf_joint",
+                 "RR_hip_joint",
+                 "RR_thigh_joint",
+                 "RR_calf_joint",
+                 "RL_hip_joint",
+                 "RL_thigh_joint",
+                 "RL_calf_joint"};
+      jsp_ = this->create_publisher<sensor_msgs::msg::JointState>("joint_states", 10);
     }
   private:
     void low_cmd_cb(const ros2_unitree_legged_msgs::msg::LowCmd::SharedPtr msg)
     {
+      // I had to change the argument to the above vs
+      // (const ros2_unitree_legged_msgs::msg::LowCmd & msg) const
+      // otherwise msg did not match the correct type to call rosMsg2Cmd :/
       RCLCPP_INFO(this->get_logger(), "Heard a low_cmd");
-      // do a udp send. Problem: Type does not match the ros2Msg2Cmd lol
-      // It expects shared pointer
       custom.low_cmd = rosMsg2Cmd(msg);
       custom.low_udp.SetSend(custom.low_cmd);
       custom.low_udp.Send();
+      // Idea: also publish to jsp here
     }
     void timer_callback()
     {
-      RCLCPP_INFO_STREAM(get_logger(), "Timer Tick!");
       // do publish here
       custom.low_udp.Recv();
       custom.low_udp.GetRecv(custom.low_state);
       low_state_ros = state2rosMsg(custom.low_state);
+      RCLCPP_INFO_STREAM(get_logger(), "Publish low state");
       pub_low_->publish(low_state_ros);
     }
     rclcpp::TimerBase::SharedPtr timer_;
@@ -67,6 +85,8 @@ class LL_UDP : public rclcpp::Node
     rclcpp::Subscription<ros2_unitree_legged_msgs::msg::LowCmd>::SharedPtr sub_low_;
     Custom custom;
     ros2_unitree_legged_msgs::msg::LowState low_state_ros;
+    sensor_msgs::msg::JointState js;
+    rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr jsp_;
 };
 
 int main(int argc, char * argv[])
@@ -76,92 +96,3 @@ int main(int argc, char * argv[])
   rclcpp::shutdown();
   return 0;
 }
-
-// Custom custom;
-
-// rclcpp::Subscription<ros2_unitree_legged_msgs::msg::HighCmd>::SharedPtr sub_high;
-// rclcpp::Subscription<ros2_unitree_legged_msgs::msg::LowCmd>::SharedPtr sub_low;
-
-// rclcpp::Publisher<ros2_unitree_legged_msgs::msg::HighState>::SharedPtr pub_high;
-// rclcpp::Publisher<ros2_unitree_legged_msgs::msg::LowState>::SharedPtr pub_low;
-
-// long high_count = 0;
-// long low_count = 0;
-
-// void highCmdCallback(const ros2_unitree_legged_msgs::msg::HighCmd::SharedPtr msg)
-// {
-//     printf("highCmdCallback is running !\t%ld\n", ::high_count);
-
-//     custom.high_cmd = rosMsg2Cmd(msg);
-
-//     custom.high_udp.SetSend(custom.high_cmd);
-//     custom.high_udp.Send();
-
-//     ros2_unitree_legged_msgs::msg::HighState high_state_ros;
-
-//     custom.high_udp.Recv();
-//     custom.high_udp.GetRecv(custom.high_state);
-
-//     high_state_ros = state2rosMsg(custom.high_state);
-
-//     pub_high->publish(high_state_ros);
-
-//     printf("highCmdCallback ending !\t%ld\n\n", ::high_count++);
-// }
-
-// void lowCmdCallback(const ros2_unitree_legged_msgs::msg::LowCmd::SharedPtr msg)
-// {
-
-//     printf("lowCmdCallback is running !\t%ld\n", low_count);
-
-//     custom.low_cmd = rosMsg2Cmd(msg);
-
-//     custom.low_udp.SetSend(custom.low_cmd);
-//     custom.low_udp.Send();
-
-//     ros2_unitree_legged_msgs::msg::LowState low_state_ros;
-
-//     custom.low_udp.Recv();
-//     custom.low_udp.GetRecv(custom.low_state);
-
-//     low_state_ros = state2rosMsg(custom.low_state);
-
-//     pub_low->publish(low_state_ros);
-
-//     printf("lowCmdCallback ending!\t%ld\n\n", ::low_count++);
-// }
-
-// int main(int argc, char **argv)
-// {
-//     rclcpp::init(argc, argv);
-
-//     auto node = rclcpp::Node::make_shared("node_ros2_udp");
-
-//     if (strcasecmp(argv[1], "LOWLEVEL") == 0)
-//     {
-//         printf("low level runing!\n");
-
-//         pub_low = node->create_publisher<ros2_unitree_legged_msgs::msg::LowState>("low_state", 1);
-//         sub_low = node->create_subscription<ros2_unitree_legged_msgs::msg::LowCmd>("low_cmd", 1, lowCmdCallback);
-
-//         rclcpp::spin(node);
-//     }
-//     else if (strcasecmp(argv[1], "HIGHLEVEL") == 0)
-//     {
-//         printf("high level runing!\n");
-
-//         pub_high = node->create_publisher<ros2_unitree_legged_msgs::msg::HighState>("high_state", 1);
-//         sub_high = node->create_subscription<ros2_unitree_legged_msgs::msg::HighCmd>("high_cmd", 1, highCmdCallback);
-
-//         rclcpp::spin(node);
-//     }
-//     else
-//     {
-//         std::cout << "Control level name error! Can only be highlevel or lowlevel(not case sensitive)" << std::endl;
-//         exit(-1);
-//     }
-
-//     rclcpp::shutdown();
-
-//     return 0;
-// }
