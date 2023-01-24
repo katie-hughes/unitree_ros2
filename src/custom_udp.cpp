@@ -69,7 +69,13 @@ class LL_UDP : public rclcpp::Node
       custom.low_cmd = rosMsg2Cmd(msg);
       custom.low_udp.SetSend(custom.low_cmd);
       custom.low_udp.Send();
-      // Idea: also publish to jsp here
+      js.position = {};
+      for (int i=0;i<12;i++){
+        // RCLCPP_INFO_STREAM(get_logger(), "q: "<<(msg->motor_cmd[i].q));
+        js.position.push_back(msg->motor_cmd[i].q);
+      }
+      js.header.stamp = this->get_clock()->now();
+      jsp_->publish(js);
     }
     void timer_callback()
     {
