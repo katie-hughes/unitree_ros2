@@ -19,6 +19,8 @@ class CustomGait : public rclcpp::Node
     : Node("custom_gait")
     {
       cmd_pub_ = this->create_publisher<ros2_unitree_legged_msgs::msg::LowCmd>("low_cmd", 10);
+      state_sub_ = this->create_subscription<ros2_unitree_legged_msgs::msg::LowState>("low_state", 10,
+        std::bind(&CustomGait::state_cb, this, std::placeholders::_1));
       timer_ = this->create_wall_timer(
         2ms,
         std::bind(&CustomGait::timer_callback, this));
@@ -37,13 +39,31 @@ class CustomGait : public rclcpp::Node
       }
     }
   private:
+    void state_cb(const ros2_unitree_legged_msgs::msg::LowState & msg)
+    {
+      if (feets.size()==0){
+        // first iteration
+        // This is a really dumb way of doing it but only way I could get to build ;-;
+        feets.push_back(msg.foot_force[0]); // FR
+        feets.push_back(msg.foot_force[1]); // FL
+        feets.push_back(msg.foot_force[2]); // RR
+        feets.push_back(msg.foot_force[3]); // RL
+      }else {
+        feets[0] = msg.foot_force[0];
+        feets[1] = msg.foot_force[1];
+        feets[2] = msg.foot_force[2];
+        feets[3] = msg.foot_force[3];
+      }
+      RCLCPP_INFO_STREAM(get_logger(), "FF:   " << feets[0] << "\t" << feets[1] << "\t" << 
+                                        feets[2] << "\t" << feets[3]);
+    }
     void timer_callback()
     {
       // RCLCPP_INFO_STREAM(get_logger(), "Timer tick!");
       if (!initiated_flag){
         RCLCPP_INFO_STREAM(get_logger(), "Waiting");
         count++;
-        if (count>100){
+        if (count>1000){
           initiated_flag = true;
         }
       }else{
@@ -116,6 +136,8 @@ class CustomGait : public rclcpp::Node
     bool initiated_flag = false;
     int count = 0;
     rclcpp::Publisher<ros2_unitree_legged_msgs::msg::LowCmd>::SharedPtr cmd_pub_;
+    rclcpp::Subscription<ros2_unitree_legged_msgs::msg::LowState>::SharedPtr state_sub_;
+    vector<int> feets;
 };
 
 
