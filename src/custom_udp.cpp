@@ -65,7 +65,7 @@ class LL_UDP : public rclcpp::Node
       // I had to change the argument to the above vs
       // (const ros2_unitree_legged_msgs::msg::LowCmd & msg) const
       // otherwise msg did not match the correct type to call rosMsg2Cmd :/
-      RCLCPP_INFO(this->get_logger(), "Heard a low_cmd");
+      // RCLCPP_INFO(this->get_logger(), "Heard a low_cmd");
       custom.low_cmd = rosMsg2Cmd(msg);
       custom.low_udp.SetSend(custom.low_cmd);
       custom.low_udp.Send();
@@ -83,7 +83,7 @@ class LL_UDP : public rclcpp::Node
       custom.low_udp.Recv();
       custom.low_udp.GetRecv(custom.low_state);
       low_state_ros = state2rosMsg(custom.low_state);
-      RCLCPP_INFO_STREAM(get_logger(), "Publish low state");
+      // RCLCPP_INFO_STREAM(get_logger(), "Publish low state");
       pub_low_->publish(low_state_ros);
     }
     rclcpp::TimerBase::SharedPtr timer_;

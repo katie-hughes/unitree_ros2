@@ -48,7 +48,7 @@ class CustomGait : public rclcpp::Node
         }
       }else{
           motiontime += 2;
-          RCLCPP_INFO_STREAM(get_logger(), "Initiated");
+          // RCLCPP_INFO_STREAM(get_logger(), "Initiated");
           double calf_1 = -M_PI / 2 + 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
           double calf_2 = -M_PI / 2 - 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
           double thigh_1 =  0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
