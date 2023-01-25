@@ -6,7 +6,10 @@
 #include "unitree_legged_sdk/unitree_legged_sdk.h"
 #include "convert.h"
 
-using namespace UNITREE_LEGGED_SDK;
+using UNITREE_LEGGED_SDK::UDP;
+using UNITREE_LEGGED_SDK::HighCmd;
+using UNITREE_LEGGED_SDK::HighState;
+
 class UDPBridgeHigh
 {
 public:
