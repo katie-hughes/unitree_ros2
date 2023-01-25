@@ -59,6 +59,7 @@ ament_target_dependencies(custom_gait rclcpp ros2_unitree_legged_msgs)
 
 install(TARGETS
     ros2_udp
+    udp_high
     ros2_walk_example
     ros2_position_example
     custom_gait
