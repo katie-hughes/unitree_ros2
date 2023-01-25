@@ -19,12 +19,3 @@ This is a set of ros2 packages designed to control the Unitree Go1 robot in low 
 Again, before running any low level controls, ensure that the dog is safely raised off the ground in the harness.
 * `udp_low`: This takes the framework defined in Unitree's `ros2_udp` and translates it into a more traditional ros2 C++ node. Additionally, this also fixes a bug where you can only read robot state messages if you are currently publishing joint commands. Finally, this also adds a joint state publisher that is connected to the joint messages received for visualizaiton in rviz.
 * `custom_gait`: This takes the framework defined in Unitree's `ros2_position_example` and translates it into a more traditional ros2 C++ node. This also enables multi-joint control. In the future it will also subscribe to the `low_state` message from the Go1 in order for more precise control. In order for this node to physically move the dog, `custom_udp` must also be running.
-
-
-
-
-### Launch Arguments:
-  * `use_jsp`: Choose if joint_state_publisher is launched. Valid choices are: ['gui', 'jsp', 'none']. Default is 'gui'.
-  * `use_rviz`: Choose if rviz is launched. Valid choices are: ['true', 'false']. Default is 'true'.
-  * `use_gz`: Choose if gazebo is launched. Valid choices are: ['true', 'false']. Default is 'false'.
-    * Gazebo currently is not functional with the meshes.
