@@ -32,12 +32,23 @@ public:
   UDPHighNode()
   : Node("udp_high")
   {
+    //Parameters
+    auto param = rcl_interfaces::msg::ParameterDescriptor{};
+    param.description = "The rate at which the node requests state information over UDP (Hz).";
+    declare_parameter("rate", 500.0, param);
+    rate_ = get_parameter("rate").get_parameter_value().get<double>();
+    interval_ = 1.0 / rate_;
+
+    //Timers
     timer_ = create_wall_timer(
-      2ms,       //TODO - make this configurable
+      static_cast<std::chrono::microseconds>(static_cast<int>(interval_ * 1000000.0)),
       std::bind(&UDPHighNode::timer_callback, this)
     );
 
+    //Publishers
     pub_state_ = this->create_publisher<ros2_unitree_legged_msgs::msg::HighState>("high_state", 10);
+    
+    //Subscribers
     sub_cmd_ = this->create_subscription<ros2_unitree_legged_msgs::msg::HighCmd>(
       "high_cmd",
       10,
@@ -51,6 +62,8 @@ private:
   rclcpp::Subscription<ros2_unitree_legged_msgs::msg::HighCmd>::SharedPtr sub_cmd_;
   UDPHighBridge bridge_;
   ros2_unitree_legged_msgs::msg::HighState state_ros_;
+
+  double rate_, interval_;
 
   void cmd_callback(const ros2_unitree_legged_msgs::msg::HighCmd::SharedPtr msg)
   {
