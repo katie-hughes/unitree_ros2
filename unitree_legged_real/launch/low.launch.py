@@ -17,7 +17,7 @@ def generate_launch_description():
      return LaunchDescription([
 
           Node(package='unitree_legged_real',
-               executable='custom_udp',
+               executable='udp_low',
                output='screen'),
 
           Node(package='unitree_legged_real',
