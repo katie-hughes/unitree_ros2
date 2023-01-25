@@ -60,10 +60,11 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::Publisher<ros2_unitree_legged_msgs::msg::HighState>::SharedPtr pub_state_;
   rclcpp::Subscription<ros2_unitree_legged_msgs::msg::HighCmd>::SharedPtr sub_cmd_;
-  UDPHighBridge bridge_;
-  ros2_unitree_legged_msgs::msg::HighState state_ros_;
+  
 
   double rate_, interval_;
+  UDPHighBridge bridge_;
+  ros2_unitree_legged_msgs::msg::HighState state_ros_;
 
   void cmd_callback(const ros2_unitree_legged_msgs::msg::HighCmd::SharedPtr msg)
   {

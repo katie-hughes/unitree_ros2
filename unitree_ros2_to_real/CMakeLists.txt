@@ -39,7 +39,11 @@ ament_target_dependencies(ros2_udp rclcpp ros2_unitree_legged_msgs)
 
 add_executable(udp_high src/udp_high.cpp)
 target_link_libraries(udp_high ${EXTRA_LIBS})
-ament_target_dependencies(udp_high rclcpp ros2_unitree_legged_msgs sensor_msgs)
+ament_target_dependencies(udp_high rclcpp ros2_unitree_legged_msgs)
+
+add_executable(jsp_high src/jsp_high.cpp)
+target_link_libraries(jsp_high ${EXTRA_LIBS})
+ament_target_dependencies(jsp_high rclcpp ros2_unitree_legged_msgs sensor_msgs)
 
 add_executable(custom_udp src/custom_udp.cpp)
 target_link_libraries(custom_udp ${EXTRA_LIBS})
@@ -60,6 +64,7 @@ ament_target_dependencies(custom_gait rclcpp ros2_unitree_legged_msgs)
 install(TARGETS
     ros2_udp
     udp_high
+    jsp_high
     ros2_walk_example
     ros2_position_example
     custom_gait
