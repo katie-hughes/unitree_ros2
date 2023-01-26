@@ -10,7 +10,7 @@ from launch.actions import DeclareLaunchArgument, Shutdown, SetLaunchConfigurati
 from launch_ros.parameter_descriptions import ParameterValue
 from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution, \
      TextSubstitution
-from launch.conditions import LaunchConfigurationEquals
+from launch.conditions import LaunchConfigurationEquals, IfCondition
 from launch_ros.substitutions import FindPackageShare
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
@@ -29,6 +29,12 @@ def generate_launch_description():
           DeclareLaunchArgument(name='enable_base_footprint', default_value='false',
                                 choices=['true', 'false'],
                                 description='Enable robot base footprint link'),
+          DeclareLaunchArgument(name='publish_static_world_tf', default_value='false',
+                                choices=['true', 'false'],
+                                description=
+                                   'Publish a static world transform to the base of the robot'),
+          DeclareLaunchArgument(name='fixed_frame', default_value='base',
+                                description='Fixed frame for RVIZ'),
 
           SetLaunchConfiguration(name='config_file',
                                  value='go1.rviz'),
@@ -67,13 +73,24 @@ def generate_launch_description():
 
           Node(package="tf2_ros",
                executable="static_transform_publisher",
-               arguments=['--frame-id', 'world', '--child-frame-id', 'base', '--z', '0.5']),
+               arguments=['--frame-id', 'world', '--child-frame-id', 'base', '--z', '0.5'],
+               condition=IfCondition(LaunchConfiguration('publish_static_world_tf'))),
 
           Node(package='rviz2',
                executable='rviz2',
                name='rviz2',
                arguments=['-d', LaunchConfiguration('rvizconfig')],
-               condition=LaunchConfigurationEquals('use_rviz', 'true'),
+               condition=IfCondition(LaunchConfiguration('use_rviz')),
+               on_exit = Shutdown()),
+          
+          Node(package='rviz2',
+               executable='rviz2',
+               name='rviz2',
+               arguments=[
+                    '-d', LaunchConfiguration('rvizconfig'),
+                    '-f', LaunchConfiguration('fixed_frame')
+               ],
+               condition=IfCondition(LaunchConfiguration('use_rviz')),
                on_exit = Shutdown()),
 
           IncludeLaunchDescription(
@@ -81,7 +98,7 @@ def generate_launch_description():
                     PathJoinSubstitution([FindPackageShare('ros_ign_gazebo'),
                                                            'launch',
                                                            'ign_gazebo.launch.py'])),
-               condition=LaunchConfigurationEquals('use_gz', 'true')),
+               condition=IfCondition(LaunchConfiguration('use_gz'))),
                # launch_arguments={'ign_args': '-r '+str(world_path)}.items()),
 
           Node(package='ros_ign_gazebo',
@@ -90,7 +107,7 @@ def generate_launch_description():
                           '-topic', 'robot_description',
                           '-z', '5.0'],
                output='screen',
-               condition=LaunchConfigurationEquals('use_gz', 'true')),
+               condition=IfCondition(LaunchConfiguration('use_gz'))),
 
           Node(package='ros_gz_bridge',
                executable='parameter_bridge',
@@ -99,5 +116,5 @@ def generate_launch_description():
                           "sensor_msgs/msg/JointState[ignition.msgs.Model"],
                remappings=[('/world/ddrive_scene/model/go1/joint_state',
                               'joint_states')],
-               condition=LaunchConfigurationEquals('use_gz', 'true'))
+               condition=IfCondition(LaunchConfiguration('use_gz')))
     ])
