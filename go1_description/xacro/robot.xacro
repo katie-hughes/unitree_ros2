@@ -3,6 +3,7 @@
 <robot name="go1" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
     <xacro:arg name="DEBUG" default="false"/>
+    <xacro:arg name="enable_base_footprint" default="false"/>
 
     <xacro:include filename="$(find go1_description)/xacro/const.xacro"/>
     <xacro:include filename="$(find go1_description)/xacro/materials.xacro"/>
@@ -37,14 +38,16 @@
         </visual>
     </link>
 
-    <link name="base_footprint" />
-      <joint name="base_to_footprint" type="prismatic">
-             <parent link="base"/>
-             <child link="base_footprint"/>
-             <origin xyz = "0 0 0" rpy="0 0 0"/> 
-             <axis xyz="0 0 1" />
-             <limit effort="100000.0" lower="-1.0" upper="0.0" velocity="100000.0"/>
-     </joint>
+    <xacro:if value="$(arg enable_base_footprint)">
+        <link name="base_footprint" />
+        <joint name="base_to_footprint" type="prismatic">
+                <parent link="base"/>
+                <child link="base_footprint"/>
+                <origin xyz = "0 0 0" rpy="0 0 0"/> 
+                <axis xyz="0 0 1" />
+                <limit effort="100000.0" lower="-1.0" upper="0.0" velocity="100000.0"/>
+        </joint>
+    </xacro:if>
 
     <joint name="floating_base" type="fixed">
         <origin rpy="0 0 0" xyz="0 0 0"/>

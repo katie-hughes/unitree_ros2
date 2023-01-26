@@ -5,9 +5,11 @@ Launches rviz with the go1 urdf file.
 
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import DeclareLaunchArgument, Shutdown, SetLaunchConfiguration, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, Shutdown, SetLaunchConfiguration, \
+     IncludeLaunchDescription
 from launch_ros.parameter_descriptions import ParameterValue
-from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution, \
+     TextSubstitution
 from launch.conditions import LaunchConfigurationEquals
 from launch_ros.substitutions import FindPackageShare
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -24,6 +26,9 @@ def generate_launch_description():
           DeclareLaunchArgument(name='use_gz', default_value='false',
                                 choices=['true', 'false'],
                                 description='Choose if gazebo is launched'),
+          DeclareLaunchArgument(name='enable_base_footprint', default_value='false',
+                                choices=['true', 'false'],
+                                description='Enable robot base footprint link'),
 
           SetLaunchConfiguration(name='config_file',
                                  value='go1.rviz'),
@@ -46,10 +51,19 @@ def generate_launch_description():
 
           Node(package='robot_state_publisher',
                executable='robot_state_publisher',
-               parameters=[{'robot_description':
-                              ParameterValue(Command(['xacro ',
-                                                       LaunchConfiguration('model')]),
-                                             value_type=str)}]),
+               parameters=[{
+                    'robot_description':
+                         ParameterValue(
+                              Command([
+                                   'xacro ',
+                                   LaunchConfiguration('model'),
+                                   TextSubstitution(text=' enable_base_footprint:='),
+                                   LaunchConfiguration('enable_base_footprint'),
+                              ]),
+                              value_type=str
+                         )
+               }]
+          ),
 
           Node(package="tf2_ros",
                executable="static_transform_publisher",
