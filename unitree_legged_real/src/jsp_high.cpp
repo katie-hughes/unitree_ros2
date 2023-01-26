@@ -5,7 +5,8 @@
 #include "ros2_unitree_legged_msgs/msg/low_state.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 
-constexpr int NUM_JOINTS = 12;
+constexpr int NUM_MOTORS = 12;
+constexpr int NUM_JOINTS = NUM_MOTORS + 1;
 
 class JSPHighNode : public rclcpp::Node
 {
@@ -49,7 +50,8 @@ public:
       "RR_calf_joint",
       "RL_hip_joint",
       "RL_thigh_joint",
-      "RL_calf_joint"
+      "RL_calf_joint",
+      "base_to_footprint",
     };
 
     joint_states_.position = {};
@@ -75,9 +77,12 @@ private:
   void timer_callback()
   {
     //Update positions from most recent state
-    for (int i=0; i < NUM_JOINTS; i++) {
+    for (int i=0; i < NUM_MOTORS; i++) {
       joint_states_.position[i] = state_.motor_state[i].q;
     }
+    joint_states_.position[13] = state_.body_height;
+
+
     joint_states_.header.stamp = this->get_clock()->now();
 
     //Publish
