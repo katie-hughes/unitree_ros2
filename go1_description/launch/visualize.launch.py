@@ -82,16 +82,6 @@ def generate_launch_description():
                arguments=['-d', LaunchConfiguration('rvizconfig')],
                condition=IfCondition(LaunchConfiguration('use_rviz')),
                on_exit = Shutdown()),
-          
-          Node(package='rviz2',
-               executable='rviz2',
-               name='rviz2',
-               arguments=[
-                    '-d', LaunchConfiguration('rvizconfig'),
-                    '-f', LaunchConfiguration('fixed_frame')
-               ],
-               condition=IfCondition(LaunchConfiguration('use_rviz')),
-               on_exit = Shutdown()),
 
           IncludeLaunchDescription(
                PythonLaunchDescriptionSource(
