@@ -54,8 +54,8 @@ class CustomGait : public rclcpp::Node
         feets[2] = msg.foot_force[2];
         feets[3] = msg.foot_force[3];
       }
-      RCLCPP_INFO_STREAM(get_logger(), "FF:   " << feets[0] << "\t" << feets[1] << "\t" << 
-                                        feets[2] << "\t" << feets[3]);
+      RCLCPP_INFO_STREAM(get_logger(), "Foot Force:  FR:" << feets[0] << "  FL:" << feets[1] << 
+                                       "  RR:" << feets[2] << "  RL:" << feets[3]);
     }
     void timer_callback()
     {
@@ -67,8 +67,9 @@ class CustomGait : public rclcpp::Node
           initiated_flag = true;
         }
       }else{
-          motiontime += 2;
+          motiontime += 1;
           // RCLCPP_INFO_STREAM(get_logger(), "Initiated");
+          RCLCPP_INFO_STREAM(get_logger(), "Motiontime " << motiontime);
           double calf_1 = -M_PI / 2 + 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
           double calf_2 = -M_PI / 2 - 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
           double thigh_1 =  0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
@@ -130,6 +131,20 @@ class CustomGait : public rclcpp::Node
       cmd_pub_->publish(low_cmd_ros);
     }
 
+    void calf_func1(long t){
+      return (-M_PI / 2 + 0.5 * sin(2 * M_PI / 5.0 * t * 1e-3));
+    }
+
+    void calf_func2(long t){
+      return (-M_PI / 2 - 0.5 * sin(2 * M_PI / 5.0 * t * 1e-3));
+    }
+
+    void fill_calves(){
+      for(int i=0;i<period;i++){
+        fr_calfs[i] = calf_func(i);
+      }
+    }
+
     rclcpp::TimerBase::SharedPtr timer_;
     ros2_unitree_legged_msgs::msg::LowCmd low_cmd_ros;
     long motiontime = 0;
@@ -138,6 +153,11 @@ class CustomGait : public rclcpp::Node
     rclcpp::Publisher<ros2_unitree_legged_msgs::msg::LowCmd>::SharedPtr cmd_pub_;
     rclcpp::Subscription<ros2_unitree_legged_msgs::msg::LowState>::SharedPtr state_sub_;
     vector<int> feets;
+    long period = 5000;
+    vector<double> fr_calf(period, 0);
+    vector<double> fl_calf(period, 0);
+    vector<double> rr_calf(period, 0);
+    vector<double> rl_calf(period, 0);
 };
 
 
