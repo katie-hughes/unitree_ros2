@@ -2,7 +2,7 @@
 
 **Authors**: Katie Hughes, Nick Morales
 
-This is a set of ROS2 packages designed to control the Unitree Go1 robot in low level mode. This repository was forked from 
+This is a set of ROS2 packages designed to control the Unitree Go1 robot. This repository was forked from 
 [Unitree's 'Ros2 to Real'](https://github.com/unitreerobotics/unitree_ros2_to_real) package with some modifications to make adding custom control more streamlined. It also includes a copy of [unitree_legged_sdk v3.5.1](https://github.com/unitreerobotics/unitree_legged_sdk/releases/tag/v3.5.1).
 
 ## How to run
