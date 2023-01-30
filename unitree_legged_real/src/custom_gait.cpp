@@ -38,7 +38,12 @@ class CustomGait : public rclcpp::Node
         low_cmd_ros.motor_cmd[i].tau = 0;
       }
 
-      make_gait();
+      // In the future, these will be a more complicated function!!
+      vector<double> desired_x = linspace(-l, l, period);
+      vector<double> desired_y = linspace(-l, -l, period);
+
+      // make_gait();
+      make_desired_gait(desired_x, desired_y);
     }
   private:
     void state_cb(const ros2_unitree_legged_msgs::msg::LowState & msg)
@@ -130,18 +135,6 @@ class CustomGait : public rclcpp::Node
       cmd_pub_->publish(low_cmd_ros);
     }
 
-    double calf_base(long){
-      return -1.85;
-    }
-
-    double thigh_base(long){
-      return 0.0;
-    }
-
-    double hip_base(long){
-      return 0.0;
-    }
-
     double calf_func1(long t){
       return (-M_PI / 2 + 0.5 * sin(2 * M_PI / 5.0 * t * 1e-3));
     }
@@ -219,6 +212,35 @@ class CustomGait : public rclcpp::Node
       }
     }
 
+    void make_desired_gait(vector<double> desired_x, vector<double> desired_y){
+      if (desired_x.size() != desired_y.size()){
+        RCLCPP_INFO_STREAM(get_logger(), "Desired X and Desired Y different lengths???");
+      } else {
+        RCLCPP_INFO_STREAM(get_logger(), "Generating Trajectory");
+        vector<double> ik_result;
+        for(int i=0;i<period;i++){
+          ik_result = ik(desired_x[i], desired_y[i]);
+          // Here we just arbitrarily choose left result (it maintained joint limits in my example)
+          // The left thigh result is 0th element and calf result is 1st
+          // Keep rest of joints stationary for now
+          fr_calf.push_back(ik_result[1]);
+          fl_calf.push_back(calf_base);
+          rr_calf.push_back(calf_base);
+          rl_calf.push_back(calf_base);
+
+          fr_thigh.push_back(ik_result[0]);
+          fl_thigh.push_back(thigh_base);
+          rr_thigh.push_back(thigh_base);
+          rl_thigh.push_back(thigh_base);
+
+          fr_hip.push_back(hip_base);
+          fl_hip.push_back(hip_base);
+          rr_hip.push_back(hip_base);
+          rl_hip.push_back(hip_base);
+        }
+      }
+    }
+
     rclcpp::TimerBase::SharedPtr timer_;
     ros2_unitree_legged_msgs::msg::LowCmd low_cmd_ros;
     long motiontime = 0;
@@ -239,6 +261,10 @@ class CustomGait : public rclcpp::Node
     double thigh_hi =  4.50;
     double hip_lo = -0.86;
     double hip_hi =  0.86;
+    // Define nominal joint values
+    double calf_base = -1.85;
+    double thigh_base = 0.0;
+    double hip_base = 0.0;
 };
 
 
