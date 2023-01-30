@@ -130,6 +130,18 @@ class CustomGait : public rclcpp::Node
       cmd_pub_->publish(low_cmd_ros);
     }
 
+    double calf_base(long){
+      return -1.85;
+    }
+
+    double thigh_base(long){
+      return 0.0;
+    }
+
+    double hip_base(long){
+      return 0.0;
+    }
+
     double calf_func1(long t){
       return (-M_PI / 2 + 0.5 * sin(2 * M_PI / 5.0 * t * 1e-3));
     }
@@ -147,11 +159,45 @@ class CustomGait : public rclcpp::Node
     }
 
     double hip_func1(long t){
-      return 0;
+      return 0.0;
     }
 
     double hip_func2(long t){
-      return 0;
+      return 0.0;
+    }
+
+    // Designed to act like the numpy linspace function.
+    // Used for forming/ testing simple linear trajectories
+    vector<double> linspace(double lo, double hi, double points){
+      vector<double> res;
+      double step = (hi-lo)/period;
+      double curr = lo;
+      for(int i=0;i<points;i++){
+        res.push_back(curr);
+        curr += step;
+      }
+      return res;
+    }
+
+    double get_theta_calf(double theta_thigh, double x){
+      return asin(-x/l - sin(theta_thigh)) - theta_thigh;
+    }
+
+    // Given an x and y (WRT hip joint), return possible joint angles
+    // First two in the vector are the "lefty" solution, and last 2 are "righty"
+    vector<double> ik(double x, double y){
+      double alpha = acos(sqrt(x*x + y*y)/(2*l));
+      double gamma = atan(x/y);
+      double theta_thigh_left = gamma + alpha;
+      double theta_calf_left = get_theta_calf(theta_thigh_left, x);
+      double theta_thigh_right = gamma - alpha;
+      double theta_calf_right = get_theta_calf(theta_thigh_right, x);
+      vector<double> res;
+      res.push_back(theta_thigh_left);
+      res.push_back(theta_calf_left);
+      res.push_back(theta_thigh_right);
+      res.push_back(theta_calf_right);
+      return res;
     }
 
     void make_gait(){
@@ -184,6 +230,15 @@ class CustomGait : public rclcpp::Node
     long period = 5000;
     vector<double> fr_calf, fl_calf, rr_calf, rl_calf, fr_thigh, fl_thigh, rr_thigh, rl_thigh,
                    fr_hip, fl_hip, rr_hip, rl_hip;
+    // This is the length of the legs.
+    double l = 0.213;
+    // Define joint limits
+    double calf_lo = -2.82;
+    double calf_hi = -0.89;
+    double thigh_lo = -0.69;
+    double thigh_hi =  4.50;
+    double hip_lo = -0.86;
+    double hip_hi =  0.86;
 };
 
 
