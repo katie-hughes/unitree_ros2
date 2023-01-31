@@ -18,11 +18,12 @@ class CustomGait : public rclcpp::Node
     CustomGait()
     : Node("custom_gait")
     {
+      rate = (std::chrono::milliseconds) ((int) rate_ms);
       cmd_pub_ = this->create_publisher<ros2_unitree_legged_msgs::msg::LowCmd>("low_cmd", 10);
       state_sub_ = this->create_subscription<ros2_unitree_legged_msgs::msg::LowState>("low_state", 10,
         std::bind(&CustomGait::state_cb, this, std::placeholders::_1));
       timer_ = this->create_wall_timer(
-        1ms,
+        rate,
         std::bind(&CustomGait::timer_callback, this));
       // initialize low_cmd fields
       low_cmd_ros.head[0] = 0xFE;
@@ -38,7 +39,13 @@ class CustomGait : public rclcpp::Node
         low_cmd_ros.motor_cmd[i].tau = 0;
       }
 
-      make_gait();
+      // In the future, these will be a more complicated function!!
+      vector<double> desired_x = linspace(-l, l, period);
+      vector<double> desired_y = linspace(-l, -l, period);
+
+      // make_gait();
+      make_desired_gait(desired_x, desired_y);
+      RCLCPP_INFO_STREAM(get_logger(), "Waiting...");
     }
   private:
     void state_cb(const ros2_unitree_legged_msgs::msg::LowState & msg)
@@ -63,9 +70,9 @@ class CustomGait : public rclcpp::Node
     {
       // RCLCPP_INFO_STREAM(get_logger(), "Timer tick!");
       if (!initiated_flag){
-        RCLCPP_INFO_STREAM(get_logger(), "Waiting");
         count++;
         if (count>1000){
+          RCLCPP_INFO_STREAM(get_logger(), "Start moving!");
           initiated_flag = true;
         }
       }else{
@@ -147,11 +154,45 @@ class CustomGait : public rclcpp::Node
     }
 
     double hip_func1(long t){
-      return 0;
+      return 0.0;
     }
 
     double hip_func2(long t){
-      return 0;
+      return 0.0;
+    }
+
+    // Designed to act like the numpy linspace function.
+    // Used for forming/ testing simple linear trajectories
+    vector<double> linspace(double lo, double hi, double points){
+      vector<double> res;
+      double step = (hi-lo)/period;
+      double curr = lo;
+      for(int i=0;i<points;i++){
+        res.push_back(curr);
+        curr += step;
+      }
+      return res;
+    }
+
+    double get_theta_calf(double theta_thigh, double x){
+      return asin(-x/l - sin(theta_thigh)) - theta_thigh;
+    }
+
+    // Given an x and y (WRT hip joint), return possible joint angles
+    // First two in the vector are the "lefty" solution, and last 2 are "righty"
+    vector<double> ik(double x, double y){
+      double alpha = acos(sqrt(x*x + y*y)/(2*l));
+      double gamma = atan(x/y);
+      double theta_thigh_left = gamma + alpha;
+      double theta_calf_left = get_theta_calf(theta_thigh_left, x);
+      double theta_thigh_right = gamma - alpha;
+      double theta_calf_right = get_theta_calf(theta_thigh_right, x);
+      vector<double> res;
+      res.push_back(theta_thigh_left);
+      res.push_back(theta_calf_left);
+      res.push_back(theta_thigh_right);
+      res.push_back(theta_calf_right);
+      return res;
     }
 
     void make_gait(){
@@ -173,6 +214,38 @@ class CustomGait : public rclcpp::Node
       }
     }
 
+    void make_desired_gait(vector<double> desired_x, vector<double> desired_y){
+      if (desired_x.size() != desired_y.size()){
+        RCLCPP_INFO_STREAM(get_logger(), "Desired X and Desired Y different lengths???");
+      } else {
+        RCLCPP_INFO_STREAM(get_logger(), "Generating Trajectory");
+        vector<double> ik_result;
+        for(int i=0;i<period;i++){
+          ik_result = ik(desired_x[i], desired_y[i]);
+          // Here we just arbitrarily choose left result (it maintained joint limits in my example)
+          // The left thigh result is 0th element and calf result is 1st
+          // Keep rest of joints stationary for now
+          RCLCPP_INFO_STREAM(get_logger(), "(x,y)=("<<desired_x[i]<<","<<desired_y[i]<<
+                                            ") ->\t(theta_t, theta_c)=("<<
+                                            ik_result[0]<<","<<ik_result[1]<<")");
+          fr_calf.push_back(ik_result[1]);
+          fl_calf.push_back(calf_base);
+          rr_calf.push_back(calf_base);
+          rl_calf.push_back(calf_base);
+
+          fr_thigh.push_back(ik_result[0]);
+          fl_thigh.push_back(thigh_base);
+          rr_thigh.push_back(thigh_base);
+          rl_thigh.push_back(thigh_base);
+
+          fr_hip.push_back(hip_base);
+          fl_hip.push_back(hip_base);
+          rr_hip.push_back(hip_base);
+          rl_hip.push_back(hip_base);
+        }
+      }
+    }
+
     rclcpp::TimerBase::SharedPtr timer_;
     ros2_unitree_legged_msgs::msg::LowCmd low_cmd_ros;
     long motiontime = 0;
@@ -181,9 +254,29 @@ class CustomGait : public rclcpp::Node
     rclcpp::Publisher<ros2_unitree_legged_msgs::msg::LowCmd>::SharedPtr cmd_pub_;
     rclcpp::Subscription<ros2_unitree_legged_msgs::msg::LowState>::SharedPtr state_sub_;
     vector<int> feets;
-    long period = 5000;
+    // number of ms between timer ticks
+    int rate_ms = 2;
+    std::chrono::milliseconds rate;
+    // Length in seconds of each leg swing
+    int period_sec = 5;
+    // 1 point/2 ms * 1000 ms / 1sec * 5 sec => period_sec * 1000 / rate_ms
+    // number of points per swing. Dependent on rate_ms
+    long period = period_sec*1000/rate_ms;
     vector<double> fr_calf, fl_calf, rr_calf, rl_calf, fr_thigh, fl_thigh, rr_thigh, rl_thigh,
                    fr_hip, fl_hip, rr_hip, rl_hip;
+    // This is the length of the legs.
+    double l = 0.213;
+    // Define joint limits
+    double calf_lo = -2.82;
+    double calf_hi = -0.89;
+    double thigh_lo = -0.69;
+    double thigh_hi =  4.50;
+    double hip_lo = -0.86;
+    double hip_hi =  0.86;
+    // Define nominal joint values
+    double calf_base = -1.85;
+    double thigh_base = 0.0;
+    double hip_base = 0.0;
 };
 
 

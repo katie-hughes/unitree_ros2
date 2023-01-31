@@ -5,6 +5,8 @@
 #ifndef _UNITREE_LEGGED_SDK_H_
 #define _UNITREE_LEGGED_SDK_H_
 
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS
+
 #include "comm.h"
 #include "safety.h"
 #include "udp.h"
