@@ -10,7 +10,7 @@ find_package(ros2_unitree_legged_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
 
-message("-- CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
+message(STATUS "-- CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
 if("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "x86_64.*")
   set(ARCH amd64)
 else()
