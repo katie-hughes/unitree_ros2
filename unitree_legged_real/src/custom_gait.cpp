@@ -12,6 +12,39 @@ using namespace UNITREE_LEGGED_SDK;
 using namespace std::chrono_literals;
 
 
+// TODO: should put these functions into a library, like I did for turtlelib
+long factorial(long n){
+  if ((n == 1) || (n == 0)){
+    return 1;
+  } else {
+    return n * factorial(n - 1);
+  }
+}
+
+long choose(long n, long k){
+  return factorial(n)/(factorial(k)*factorial(n-k));
+}
+
+double p_i(long i, long order, double t, double point){
+  return choose(order,i) * pow((1-t),(order-i)) * pow(t,i)*point;
+  // PYTHON VERSION: return choose(order,i)*((1-t)**(order-i))*(t**i)*point;
+}
+
+vector<double> bezier(vector<double> points, double step){
+  const auto order = points.size();
+  vector<double> curve;
+  for (double t = 0.0; t<=1; t+=step){
+    double current = 0;
+    for (int i=0; i<order; i++){
+      current += p_i(i,order-1,t,points.at(i));
+    }
+    curve.push_back(current);
+  }
+  return curve;
+}
+
+
+
 class CustomGait : public rclcpp::Node
 {
   public:
@@ -40,6 +73,11 @@ class CustomGait : public rclcpp::Node
       }
 
       // In the future, these will be a more complicated function!!
+      ctrl_x = {-0.2, -0.2805, -0.300, -0.300, -0.300,   0.0,   0.0,   0.0, 0.3032, 0.3032, 0.2826, 0.200};
+      ctrl_y = {0.5, 0.5, 0.3611, 0.3611, 0.3611, 0.3611, 0.3611, 0.3214, 0.3214, 0.3214, 0.5, 0.5};
+      vector<double> bez_x = bezier(ctrl_x, 0.005);
+      RCLCPP_INFO_STREAM(get_logger(), "Size of bez_x: "<<bez_x.size());
+
       vector<double> desired_x = linspace(-l, l, period);
       vector<double> desired_y = linspace(-l, -l, period);
 
@@ -225,9 +263,9 @@ class CustomGait : public rclcpp::Node
           // Here we just arbitrarily choose left result (it maintained joint limits in my example)
           // The left thigh result is 0th element and calf result is 1st
           // Keep rest of joints stationary for now
-          RCLCPP_INFO_STREAM(get_logger(), "(x,y)=("<<desired_x[i]<<","<<desired_y[i]<<
-                                            ") ->\t(theta_t, theta_c)=("<<
-                                            ik_result[0]<<","<<ik_result[1]<<")");
+          // RCLCPP_INFO_STREAM(get_logger(), "(x,y)=("<<desired_x[i]<<","<<desired_y[i]<<
+          //                                   ") ->\t(theta_t, theta_c)=("<<
+          //                                   ik_result[0]<<","<<ik_result[1]<<")");
           fr_calf.push_back(ik_result[1]);
           fl_calf.push_back(calf_base);
           rr_calf.push_back(calf_base);
@@ -277,6 +315,8 @@ class CustomGait : public rclcpp::Node
     double calf_base = -1.85;
     double thigh_base = 0.0;
     double hip_base = 0.0;
+    // Control points for bezier curve
+    vector<double> ctrl_x, ctrl_y;
 };
 
 
