@@ -1,15 +1,34 @@
+#include <chrono>
+#include <functional>
+#include <memory>
+#include <string>
+#include <cmath>
+
 #include "rclcpp/rclcpp.hpp"
 #include "ros2_unitree_legged_msgs/msg/high_cmd.hpp"
 #include "ros2_unitree_legged_msgs/msg/high_state.hpp"
 #include "ros2_unitree_legged_msgs/msg/low_cmd.hpp"
 #include "ros2_unitree_legged_msgs/msg/low_state.hpp"
-#include "unitree_legged_sdk/unitree_legged_sdk.h"
-#include "convert.h"
-#include <cmath>
 
-// Bad practice, fix
-using namespace UNITREE_LEGGED_SDK;
 using namespace std::chrono_literals;
+
+// copied from quadruped.h
+
+constexpr int FR_0 = 0;      // joint index
+constexpr int FR_1 = 1;      
+constexpr int FR_2 = 2;
+
+constexpr int FL_0 = 3;
+constexpr int FL_1 = 4;
+constexpr int FL_2 = 5;
+
+constexpr int RR_0 = 6;
+constexpr int RR_1 = 7;
+constexpr int RR_2 = 8;
+
+constexpr int RL_0 = 9;
+constexpr int RL_1 = 10;
+constexpr int RL_2 = 11;
 
 
 // TODO: should put these functions into a library, like I did for turtlelib
@@ -30,9 +49,9 @@ double p_i(long i, long order, double t, double point){
   // PYTHON VERSION: return choose(order,i)*((1-t)**(order-i))*(t**i)*point;
 }
 
-vector<double> bezier(vector<double> points, double step){
+std::vector<double> bezier(std::vector<double> points, double step){
   const auto order = points.size();
-  vector<double> curve;
+  std::vector<double> curve;
   for (double t = 0.0; t<=1; t+=step){
     double current = 0;
     for (int i=0; i<order; i++){
@@ -52,37 +71,66 @@ class CustomGait : public rclcpp::Node
     : Node("custom_gait")
     {
       rate = (std::chrono::milliseconds) ((int) rate_ms);
-      cmd_pub_ = this->create_publisher<ros2_unitree_legged_msgs::msg::LowCmd>("low_cmd", 10);
-      state_sub_ = this->create_subscription<ros2_unitree_legged_msgs::msg::LowState>("low_state", 10,
+      cmd_pub_ = create_publisher<ros2_unitree_legged_msgs::msg::LowCmd>("low_cmd", 10);
+      state_sub_ = create_subscription<ros2_unitree_legged_msgs::msg::LowState>("low_state", 10,
         std::bind(&CustomGait::state_cb, this, std::placeholders::_1));
-      timer_ = this->create_wall_timer(
+      timer_ = create_wall_timer(
         rate,
         std::bind(&CustomGait::timer_callback, this));
       // initialize low_cmd fields
       low_cmd_ros.head[0] = 0xFE;
       low_cmd_ros.head[1] = 0xEF;
-      low_cmd_ros.level_flag = LOWLEVEL;
+      low_cmd_ros.level_flag = 0xFF; // LOWLEVEL;
       for (int i = 0; i < 12; i++)
       {
         low_cmd_ros.motor_cmd[i].mode = 0x0A;  // motor switch to servo (PMSM) mode
-        low_cmd_ros.motor_cmd[i].q = PosStopF; // 禁止位置环
+        low_cmd_ros.motor_cmd[i].q = (2.146E+9f); // PosStopF; // 禁止位置环
         low_cmd_ros.motor_cmd[i].kp = 0;
-        low_cmd_ros.motor_cmd[i].dq = VelStopF; // 禁止速度环
+        low_cmd_ros.motor_cmd[i].dq = (16000.0f); // VelStopF; // 禁止速度环
         low_cmd_ros.motor_cmd[i].kd = 0;
         low_cmd_ros.motor_cmd[i].tau = 0;
       }
 
       // In the future, these will be a more complicated function!!
-      ctrl_x = {-0.2, -0.2805, -0.300, -0.300, -0.300,   0.0,   0.0,   0.0, 0.3032, 0.3032, 0.2826, 0.200};
-      ctrl_y = {0.5, 0.5, 0.3611, 0.3611, 0.3611, 0.3611, 0.3611, 0.3214, 0.3214, 0.3214, 0.5, 0.5};
-      vector<double> bez_x = bezier(ctrl_x, 0.005);
+      const auto lspan = 0.10; // half of "stroke length", ie how long it's on the floor
+      const auto dl = 0.025; // extra bit to extend by after leaving floor
+      const auto ddl = 0.025; // another extra bit to extend by LOL 
+      const auto stand_floor = -1.5*l; // y distance when the foot is on the floor.
+      const auto swing_height = 0.05; // ???
+      const auto dswing_height = 0.025; // ??
+      ctrl_x = {-1.0*lspan,
+                -1.0*lspan - dl,
+                -1.0*lspan - dl - ddl,
+                -1.0*lspan - dl - ddl,
+                -1.0*lspan - dl - ddl,
+                0.0,
+                0.0,
+                0.0,
+                lspan + dl + ddl,
+                lspan + dl + ddl,
+                lspan + dl,
+                lspan};
+      ctrl_y = {stand_floor,
+                stand_floor,
+                stand_floor + swing_height,
+                stand_floor + swing_height,
+                stand_floor + swing_height,
+                stand_floor + swing_height,
+                stand_floor + swing_height,
+                stand_floor + swing_height + dswing_height,
+                stand_floor + swing_height + dswing_height,
+                stand_floor + swing_height + dswing_height,
+                stand_floor,
+                stand_floor};
+      std::vector<double> bez_x = bezier(ctrl_x, 1.0/period);
+      std::vector<double> bez_y = bezier(ctrl_y, 1.0/period);
       RCLCPP_INFO_STREAM(get_logger(), "Size of bez_x: "<<bez_x.size());
 
-      vector<double> desired_x = linspace(-l, l, period);
-      vector<double> desired_y = linspace(-l, -l, period);
+      // std::vector<double> desired_x = linspace(-l, l, period);
+      // std::vector<double> desired_y = linspace(-l, -l, period);
 
       // make_gait();
-      make_desired_gait(desired_x, desired_y);
+      make_desired_gait(bez_x, bez_y);
       RCLCPP_INFO_STREAM(get_logger(), "Waiting...");
     }
   private:
@@ -117,7 +165,7 @@ class CustomGait : public rclcpp::Node
           motiontime += 1;
           // RCLCPP_INFO_STREAM(get_logger(), "Motiontime " << motiontime);
           if (motiontime >= period){
-            RCLCPP_INFO_STREAM(get_logger(), "RESET TO 0");
+            RCLCPP_INFO_STREAM(get_logger(), "New Step!");
             motiontime = 0;
           }
           low_cmd_ros.motor_cmd[FR_2].q = fr_calf[motiontime];
@@ -201,8 +249,8 @@ class CustomGait : public rclcpp::Node
 
     // Designed to act like the numpy linspace function.
     // Used for forming/ testing simple linear trajectories
-    vector<double> linspace(double lo, double hi, double points){
-      vector<double> res;
+    std::vector<double> linspace(double lo, double hi, double points){
+      std::vector<double> res;
       double step = (hi-lo)/period;
       double curr = lo;
       for(int i=0;i<points;i++){
@@ -218,14 +266,14 @@ class CustomGait : public rclcpp::Node
 
     // Given an x and y (WRT hip joint), return possible joint angles
     // First two in the vector are the "lefty" solution, and last 2 are "righty"
-    vector<double> ik(double x, double y){
+    std::vector<double> ik(double x, double y){
       double alpha = acos(sqrt(x*x + y*y)/(2*l));
       double gamma = atan(x/y);
       double theta_thigh_left = gamma + alpha;
       double theta_calf_left = get_theta_calf(theta_thigh_left, x);
       double theta_thigh_right = gamma - alpha;
       double theta_calf_right = get_theta_calf(theta_thigh_right, x);
-      vector<double> res;
+      std::vector<double> res;
       res.push_back(theta_thigh_left);
       res.push_back(theta_calf_left);
       res.push_back(theta_thigh_right);
@@ -252,20 +300,20 @@ class CustomGait : public rclcpp::Node
       }
     }
 
-    void make_desired_gait(vector<double> desired_x, vector<double> desired_y){
+    void make_desired_gait(std::vector<double> desired_x, std::vector<double> desired_y){
       if (desired_x.size() != desired_y.size()){
         RCLCPP_INFO_STREAM(get_logger(), "Desired X and Desired Y different lengths???");
       } else {
         RCLCPP_INFO_STREAM(get_logger(), "Generating Trajectory");
-        vector<double> ik_result;
+        std::vector<double> ik_result;
         for(int i=0;i<period;i++){
           ik_result = ik(desired_x[i], desired_y[i]);
           // Here we just arbitrarily choose left result (it maintained joint limits in my example)
           // The left thigh result is 0th element and calf result is 1st
           // Keep rest of joints stationary for now
-          // RCLCPP_INFO_STREAM(get_logger(), "(x,y)=("<<desired_x[i]<<","<<desired_y[i]<<
-          //                                   ") ->\t(theta_t, theta_c)=("<<
-          //                                   ik_result[0]<<","<<ik_result[1]<<")");
+          RCLCPP_INFO_STREAM(get_logger(), "(x,y)=("<<desired_x[i]<<","<<desired_y[i]<<
+                                            ") ->\t(theta_t, theta_c)=("<<
+                                            ik_result[0]<<","<<ik_result[1]<<")");
           fr_calf.push_back(ik_result[1]);
           fl_calf.push_back(calf_base);
           rr_calf.push_back(calf_base);
@@ -291,7 +339,7 @@ class CustomGait : public rclcpp::Node
     int count = 0;
     rclcpp::Publisher<ros2_unitree_legged_msgs::msg::LowCmd>::SharedPtr cmd_pub_;
     rclcpp::Subscription<ros2_unitree_legged_msgs::msg::LowState>::SharedPtr state_sub_;
-    vector<int> feets;
+    std::vector<int> feets;
     // number of ms between timer ticks
     int rate_ms = 2;
     std::chrono::milliseconds rate;
@@ -300,7 +348,7 @@ class CustomGait : public rclcpp::Node
     // 1 point/2 ms * 1000 ms / 1sec * 5 sec => period_sec * 1000 / rate_ms
     // number of points per swing. Dependent on rate_ms
     long period = period_sec*1000/rate_ms;
-    vector<double> fr_calf, fl_calf, rr_calf, rl_calf, fr_thigh, fl_thigh, rr_thigh, rl_thigh,
+    std::vector<double> fr_calf, fl_calf, rr_calf, rl_calf, fr_thigh, fl_thigh, rr_thigh, rl_thigh,
                    fr_hip, fl_hip, rr_hip, rl_hip;
     // This is the length of the legs.
     double l = 0.213;
@@ -316,7 +364,7 @@ class CustomGait : public rclcpp::Node
     double thigh_base = 0.0;
     double hip_base = 0.0;
     // Control points for bezier curve
-    vector<double> ctrl_x, ctrl_y;
+    std::vector<double> ctrl_x, ctrl_y;
 };
 
 
