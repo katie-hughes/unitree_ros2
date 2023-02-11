@@ -29,6 +29,9 @@ def generate_launch_description():
           DeclareLaunchArgument(name='enable_base_footprint', default_value='false',
                                 choices=['true', 'false'],
                                 description='Enable robot base footprint link'),
+          DeclareLaunchArgument(name='enable_lidar', default_value='false',
+                                choices=['true', 'false'],
+                                description='Enable lidar link'),
           DeclareLaunchArgument(name='publish_static_world_tf', default_value='false',
                                 choices=['true', 'false'],
                                 description=
@@ -36,8 +39,10 @@ def generate_launch_description():
           DeclareLaunchArgument(name='fixed_frame', default_value='base',
                                 description='Fixed frame for RVIZ'),
 
+        #   SetLaunchConfiguration(name='config_file',
+        #                          value='go1.rviz'),
           SetLaunchConfiguration(name='config_file',
-                                 value='go1.rviz'),
+                                 value='go2.rviz'),
           SetLaunchConfiguration(name='model',
                                  value=PathJoinSubstitution([FindPackageShare('go1_description'),
                                                              'xacro',
@@ -65,6 +70,8 @@ def generate_launch_description():
                                    LaunchConfiguration('model'),
                                    TextSubstitution(text=' enable_base_footprint:='),
                                    LaunchConfiguration('enable_base_footprint'),
+                                   TextSubstitution(text=' enable_lidar:='),
+                                   LaunchConfiguration('enable_lidar')
                               ]),
                               value_type=str
                          )
