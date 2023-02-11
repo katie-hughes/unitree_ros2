@@ -39,7 +39,8 @@ def generate_launch_description():
             launch_arguments=[
                 ('use_jsp', 'none'),
                 ('fixed_frame', LaunchConfiguration('fixed_frame')),
-                ('enable_base_footprint', 'true'),
+                ('enable_base_footprint', 'false'), # was True
+                ('enable_lidar', 'true')
             ],
             condition=IfCondition(LaunchConfiguration('use_rviz'))
         ),
