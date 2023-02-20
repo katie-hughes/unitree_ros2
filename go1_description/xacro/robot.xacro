@@ -39,13 +39,20 @@
     </link>
 
     <xacro:if value="$(arg enable_base_footprint)">
+        <link name="height_measurement" />
+        <!-- Measured empirically from difference between actual and reported body height -->
+        <joint name="base_to_height" type="fixed">
+            <origin rpy="0 0 0" xyz="0 0 -0.015"/>
+            <parent link="base"/>
+            <child link="height_measurement"/>
+        </joint>
         <link name="base_footprint" />
-        <joint name="base_to_footprint" type="prismatic">
-                <parent link="base"/>
+        <joint name="height_to_footprint" type="prismatic">
+                <parent link="height_measurement"/>
                 <child link="base_footprint"/>
                 <origin xyz = "0 0 0" rpy="0 0 0"/> 
-                <axis xyz="0 0 1" />
-                <limit effort="100000.0" lower="-1.0" upper="0.0" velocity="100000.0"/>
+                <axis xyz="0 0 -1" />
+                <limit effort="100000.0" lower="0.0" upper="1.0" velocity="100000.0"/>
         </joint>
     </xacro:if>
 
