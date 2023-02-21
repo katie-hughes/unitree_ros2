@@ -16,12 +16,6 @@ def generate_launch_description():
      return LaunchDescription([
 
           DeclareLaunchArgument(
-            name='use_rviz',
-            default_value='true',
-            choices=['true','false'],
-            description='Open RVIZ for Go1 visualization'),
-          
-          DeclareLaunchArgument(
             name='js_source',
             default_value='cmd',
             choices=['cmd','state'],
@@ -46,6 +40,5 @@ def generate_launch_description():
                          ('use_jsp', 'none'),
                          ('publish_static_world_tf', 'true'),
                          ('fixed_frame', 'world')
-                    ], 
-               condition=IfCondition(LaunchConfiguration('use_rviz')))
+                    ])
     ])
