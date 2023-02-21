@@ -26,9 +26,9 @@ def generate_launch_description():
           DeclareLaunchArgument(name='use_gz', default_value='false',
                                 choices=['true', 'false'],
                                 description='Choose if gazebo is launched'),
-          DeclareLaunchArgument(name='enable_base_footprint', default_value='false',
+          DeclareLaunchArgument(name='use_nav2_links', default_value='false',
                                 choices=['true', 'false'],
-                                description='Enable robot base footprint link'),
+                                description='Use Nav2 frames in URDF'),
           DeclareLaunchArgument(name='publish_static_world_tf', default_value='false',
                                 choices=['true', 'false'],
                                 description=
@@ -63,8 +63,8 @@ def generate_launch_description():
                               Command([
                                    'xacro ',
                                    LaunchConfiguration('model'),
-                                   TextSubstitution(text=' enable_base_footprint:='),
-                                   LaunchConfiguration('enable_base_footprint'),
+                                   TextSubstitution(text=' use_nav2_links:='),
+                                   LaunchConfiguration('use_nav2_links'),
                               ]),
                               value_type=str
                          )
