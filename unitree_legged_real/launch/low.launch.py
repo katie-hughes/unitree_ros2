@@ -24,6 +24,10 @@ def generate_launch_description():
           Node(package='unitree_legged_real',
                executable='udp_low',
                output='screen'),
+
+          Node(package='unitree_legged_real',
+               executable='jsp_low',
+               output='screen'),
                
           IncludeLaunchDescription(
                PythonLaunchDescriptionSource(

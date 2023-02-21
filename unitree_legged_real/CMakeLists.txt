@@ -45,6 +45,10 @@ add_executable(jsp_high src/jsp_high.cpp)
 target_link_libraries(jsp_high ${EXTRA_LIBS})
 ament_target_dependencies(jsp_high rclcpp ros2_unitree_legged_msgs sensor_msgs)
 
+add_executable(jsp_low src/jsp_low.cpp)
+target_link_libraries(jsp_low ${EXTRA_LIBS})
+ament_target_dependencies(jsp_low rclcpp ros2_unitree_legged_msgs sensor_msgs)
+
 add_executable(udp_low src/udp_low.cpp)
 target_link_libraries(udp_low ${EXTRA_LIBS})
 ament_target_dependencies(udp_low rclcpp ros2_unitree_legged_msgs sensor_msgs)
@@ -69,6 +73,7 @@ install(TARGETS
     ros2_position_example
     custom_gait
     udp_low
+    jsp_low
     DESTINATION lib/${PROJECT_NAME}
 )
 
