@@ -15,11 +15,16 @@ public:
   : Node("jsp_low")
   {
     //Parameters
-    auto param = rcl_interfaces::msg::ParameterDescriptor{};
-    param.description = "The rate at which the node publishes joint states (Hz).";
-    declare_parameter("rate", 100.0, param);
-    rate_ = get_parameter("rate").get_parameter_value().get<double>();
+    auto param1 = rcl_interfaces::msg::ParameterDescriptor{};
+    param1.description = "The rate at which the node publishes joint states (Hz).";
+    declare_parameter("rate", 100.0, param1);
+    rate_ = get_parameter("rate").as_double();
     interval_ = 1.0 / rate_;
+
+    auto param2 = rcl_interfaces::msg::ParameterDescriptor{};
+    param2.description = "Source of joint states: either \"cmd\" or \"state\"";
+    declare_parameter("js_source", "cmd", param2);
+    js_source_ = get_parameter("js_source").as_string();
 
     //Timers
     timer_ = create_wall_timer(
@@ -76,6 +81,7 @@ private:
   ros2_unitree_legged_msgs::msg::LowState state_;
   ros2_unitree_legged_msgs::msg::LowCmd cmd_;
   sensor_msgs::msg::JointState joint_states_;
+  std::string js_source_;
 
   void state_callback(const ros2_unitree_legged_msgs::msg::LowState::SharedPtr msg) {
     //Store most recent state for later use
@@ -90,9 +96,17 @@ private:
   void timer_callback()
   {
     //Update positions from most recent cmd
+    
     for (int i=0; i < NUM_MOTORS; i++) {
-      // joint_states_.position[i] = state_.motor_state[i].q;
-      joint_states_.position[i] = cmd_.motor_cmd[i].q;
+      double joint_position = 0.0;
+      // depending on the source specified, either take from state or cmd.
+      if (js_source_ == "cmd"){
+        joint_position = cmd_.motor_cmd[i].q;
+      } else if (js_source_ == "state"){
+        joint_position = state_.motor_state[i].q;
+      }
+      // if js_source is neither of these (ie invalid), the joint will stay at 0.
+      joint_states_.position[i] = joint_position;
     }
     joint_states_.header.stamp = this->get_clock()->now();
     //Publish

@@ -20,6 +20,13 @@ def generate_launch_description():
             default_value='true',
             choices=['true','false'],
             description='Open RVIZ for Go1 visualization'),
+          
+          DeclareLaunchArgument(
+            name='js_source',
+            default_value='cmd',
+            choices=['cmd','state'],
+            description='Determines whether sent commands (cmd) or current state (src) '+
+                        'are published to the /joint_state topic.'),
 
           Node(package='unitree_legged_real',
                executable='udp_low',
@@ -27,6 +34,7 @@ def generate_launch_description():
 
           Node(package='unitree_legged_real',
                executable='jsp_low',
+               parameters=[{"js_source": LaunchConfiguration('js_source')}],
                output='screen'),
                
           IncludeLaunchDescription(
