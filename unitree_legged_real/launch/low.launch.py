@@ -5,12 +5,11 @@ Launches low level go controls for the go1
 
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import DeclareLaunchArgument, Shutdown, SetLaunchConfiguration, IncludeLaunchDescription
-from launch_ros.parameter_descriptions import ParameterValue
-from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
-from launch.conditions import LaunchConfigurationEquals
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.conditions import IfCondition
 
 
 def generate_launch_description():
@@ -35,5 +34,6 @@ def generate_launch_description():
                          ('use_jsp', 'none'),
                          ('publish_static_world_tf', 'true'),
                          ('fixed_frame', 'world')
-                    ])
+                    ], 
+               condition=IfCondition(LaunchConfiguration('use_rviz')))
     ])
