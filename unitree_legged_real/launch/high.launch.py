@@ -40,8 +40,8 @@ def generate_launch_description():
                 ('use_jsp', 'none'),
                 ('fixed_frame', LaunchConfiguration('fixed_frame')),
                 ('use_nav2_links', 'true'),
+                ('use_rviz', LaunchConfiguration('use_rviz')),
             ],
-            condition=IfCondition(LaunchConfiguration('use_rviz'))
         ),
 
         Node(
