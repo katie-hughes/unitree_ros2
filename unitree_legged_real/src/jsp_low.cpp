@@ -36,17 +36,17 @@ public:
     pub_joint_states_ = create_publisher<sensor_msgs::msg::JointState>("joint_states", 10);
 
     //Subscribers
-    sub_state_ = create_subscription<ros2_unitree_legged_msgs::msg::LowState>(
-      "low_state",
-      10,
-      std::bind(&JSPLowNode::state_callback, this, std::placeholders::_1)
-    );
-
-    sub_cmd_ = create_subscription<ros2_unitree_legged_msgs::msg::LowCmd>(
-      "low_cmd",
-      10,
-      std::bind(&JSPLowNode::cmd_callback, this, std::placeholders::_1)
-    );
+    if (js_source_ == "cmd"){
+      sub_cmd_ = create_subscription<ros2_unitree_legged_msgs::msg::LowCmd>(
+        "/low_cmd",
+        10,
+        std::bind(&JSPLowNode::cmd_callback, this, std::placeholders::_1));
+    }else if (js_source_ == "state"){
+      sub_state_ = create_subscription<ros2_unitree_legged_msgs::msg::LowState>(
+        "/low_state",
+        10,
+        std::bind(&JSPLowNode::state_callback, this, std::placeholders::_1));
+    }
 
     //Other variables
     joint_states_.name = {

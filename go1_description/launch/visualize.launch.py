@@ -23,18 +23,14 @@ def generate_launch_description():
           DeclareLaunchArgument(name='use_rviz', default_value='true',
                                 choices=['true', 'false'],
                                 description='Choose if rviz is launched'),
-          DeclareLaunchArgument(name='use_gz', default_value='false',
-                                choices=['true', 'false'],
-                                description='Choose if gazebo is launched'),
           DeclareLaunchArgument(name='enable_base_footprint', default_value='false',
                                 choices=['true', 'false'],
                                 description='Enable robot base footprint link'),
-          DeclareLaunchArgument(name='publish_static_world_tf', default_value='false',
-                                choices=['true', 'false'],
-                                description=
-                                   'Publish a static world transform to the base of the robot'),
           DeclareLaunchArgument(name='fixed_frame', default_value='base',
                                 description='Fixed frame for RVIZ'),
+          DeclareLaunchArgument(name='namespace', default_value='',
+                                description=
+                                   'Choose a namespace for the launched topics.'),
 
           SetLaunchConfiguration(name='config_file',
                                  value='go1.rviz'),
@@ -49,10 +45,12 @@ def generate_launch_description():
 
           Node(package='joint_state_publisher',
                executable='joint_state_publisher',
+               namespace=LaunchConfiguration('namespace'),
                condition=LaunchConfigurationEquals('use_jsp', 'jsp')),
 
           Node(package='joint_state_publisher_gui',
                executable='joint_state_publisher_gui',
+               namespace=LaunchConfiguration('namespace'),
                condition=LaunchConfigurationEquals('use_jsp', 'gui')),
 
           Node(package='robot_state_publisher',
@@ -67,14 +65,11 @@ def generate_launch_description():
                                    LaunchConfiguration('enable_base_footprint'),
                               ]),
                               value_type=str
-                         )
-               }]
+                         )},
+                    {'frame_prefix': [LaunchConfiguration('namespace'), '/']
+               }],
+               namespace=LaunchConfiguration('namespace')
           ),
-
-          Node(package="tf2_ros",
-               executable="static_transform_publisher",
-               arguments=['--frame-id', 'world', '--child-frame-id', 'base', '--z', '0.5'],
-               condition=IfCondition(LaunchConfiguration('publish_static_world_tf'))),
 
           Node(package='rviz2',
                executable='rviz2',
@@ -83,31 +78,5 @@ def generate_launch_description():
                     '-d', LaunchConfiguration('rvizconfig'),
                     '-f', LaunchConfiguration('fixed_frame')
                ],
-               condition=IfCondition(LaunchConfiguration('use_rviz')),
-               on_exit = Shutdown()),
-
-          IncludeLaunchDescription(
-               PythonLaunchDescriptionSource(
-                    PathJoinSubstitution([FindPackageShare('ros_ign_gazebo'),
-                                                           'launch',
-                                                           'ign_gazebo.launch.py'])),
-               condition=IfCondition(LaunchConfiguration('use_gz'))),
-               # launch_arguments={'ign_args': '-r '+str(world_path)}.items()),
-
-          Node(package='ros_ign_gazebo',
-               executable='create',
-               arguments=['-name', 'go1',
-                          '-topic', 'robot_description',
-                          '-z', '5.0'],
-               output='screen',
-               condition=IfCondition(LaunchConfiguration('use_gz'))),
-
-          Node(package='ros_gz_bridge',
-               executable='parameter_bridge',
-               arguments=["/tf@tf2_msgs/msg/TFMessage@ignition.msgs.Pose_V",
-                          "/world/ddrive_scene/model/go1/joint_state@" +
-                          "sensor_msgs/msg/JointState[ignition.msgs.Model"],
-               remappings=[('/world/ddrive_scene/model/go1/joint_state',
-                              'joint_states')],
-               condition=IfCondition(LaunchConfiguration('use_gz')))
+               condition=IfCondition(LaunchConfiguration('use_rviz')))
     ])

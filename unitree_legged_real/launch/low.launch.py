@@ -17,7 +17,7 @@ def generate_launch_description():
 
           DeclareLaunchArgument(
             name='js_source',
-            default_value='cmd',
+            default_value='state',
             choices=['cmd','state'],
             description='Determines whether sent commands (cmd) or current state (src) '+
                         'are published to the /joint_state topic.'),
@@ -29,6 +29,7 @@ def generate_launch_description():
           Node(package='unitree_legged_real',
                executable='jsp_low',
                parameters=[{"js_source": LaunchConfiguration('js_source')}],
+               namespace=LaunchConfiguration('js_source'),
                output='screen'),
                
           IncludeLaunchDescription(
@@ -38,7 +39,7 @@ def generate_launch_description():
                                                            'visualize.launch.py'])),
                     launch_arguments=[
                          ('use_jsp', 'none'),
-                         ('publish_static_world_tf', 'true'),
-                         ('fixed_frame', 'world')
+                         ('fixed_frame', 'world'),
+                         ('namespace', LaunchConfiguration('js_source'))
                     ])
     ])

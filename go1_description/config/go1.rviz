@@ -6,7 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /RobotModel1
+        - /TF1/Frames1
       Splitter Ratio: 0.5
     Tree Height: 515
   - Class: rviz_common/Selection
@@ -297,6 +297,184 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
+    - Class: rviz_default_plugins/TF
+      Enabled: true
+      Frame Timeout: 15
+      Frames:
+        All Enabled: false
+        FL_calf:
+          Value: false
+        FL_calf_rotor:
+          Value: false
+        FL_foot:
+          Value: false
+        FL_hip:
+          Value: false
+        FL_hip_rotor:
+          Value: false
+        FL_thigh:
+          Value: false
+        FL_thigh_rotor:
+          Value: false
+        FR_calf:
+          Value: false
+        FR_calf_rotor:
+          Value: false
+        FR_foot:
+          Value: false
+        FR_hip:
+          Value: false
+        FR_hip_rotor:
+          Value: false
+        FR_thigh:
+          Value: false
+        FR_thigh_rotor:
+          Value: false
+        RL_calf:
+          Value: false
+        RL_calf_rotor:
+          Value: false
+        RL_foot:
+          Value: false
+        RL_hip:
+          Value: false
+        RL_hip_rotor:
+          Value: false
+        RL_thigh:
+          Value: false
+        RL_thigh_rotor:
+          Value: false
+        RR_calf:
+          Value: false
+        RR_calf_rotor:
+          Value: false
+        RR_foot:
+          Value: false
+        RR_hip:
+          Value: false
+        RR_hip_rotor:
+          Value: false
+        RR_thigh:
+          Value: false
+        RR_thigh_rotor:
+          Value: false
+        base:
+          Value: true
+        camera_chin:
+          Value: false
+        camera_face:
+          Value: false
+        camera_laserscan_link_left:
+          Value: false
+        camera_laserscan_link_right:
+          Value: false
+        camera_left:
+          Value: false
+        camera_optical_chin:
+          Value: false
+        camera_optical_face:
+          Value: false
+        camera_optical_left:
+          Value: false
+        camera_optical_rearDown:
+          Value: false
+        camera_optical_right:
+          Value: false
+        camera_rearDown:
+          Value: false
+        camera_right:
+          Value: false
+        imu_link:
+          Value: false
+        trunk:
+          Value: false
+        ultraSound_face:
+          Value: false
+        ultraSound_left:
+          Value: false
+        ultraSound_right:
+          Value: false
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: false
+      Tree:
+        base:
+          trunk:
+            FL_hip:
+              FL_thigh:
+                FL_calf:
+                  FL_foot:
+                    {}
+                FL_calf_rotor:
+                  {}
+              FL_thigh_rotor:
+                {}
+            FL_hip_rotor:
+              {}
+            FR_hip:
+              FR_thigh:
+                FR_calf:
+                  FR_foot:
+                    {}
+                FR_calf_rotor:
+                  {}
+              FR_thigh_rotor:
+                {}
+            FR_hip_rotor:
+              {}
+            RL_hip:
+              RL_thigh:
+                RL_calf:
+                  RL_foot:
+                    {}
+                RL_calf_rotor:
+                  {}
+              RL_thigh_rotor:
+                {}
+            RL_hip_rotor:
+              {}
+            RR_hip:
+              RR_thigh:
+                RR_calf:
+                  RR_foot:
+                    {}
+                RR_calf_rotor:
+                  {}
+              RR_thigh_rotor:
+                {}
+            RR_hip_rotor:
+              {}
+            camera_chin:
+              camera_optical_chin:
+                {}
+            camera_face:
+              camera_optical_face:
+                {}
+            camera_left:
+              camera_laserscan_link_left:
+                {}
+              camera_optical_left:
+                {}
+            camera_rearDown:
+              camera_optical_rearDown:
+                {}
+            camera_right:
+              camera_laserscan_link_right:
+                {}
+              camera_optical_right:
+                {}
+            imu_link:
+              {}
+            ultraSound_face:
+              {}
+            ultraSound_left:
+              {}
+            ultraSound_right:
+              {}
+      Update Interval: 0
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -379,5 +557,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1200
-  X: 210
-  Y: 62
+  X: 2120
+  Y: 99
