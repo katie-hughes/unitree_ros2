@@ -22,6 +22,10 @@ def generate_launch_description():
             description='Determines whether sent commands (cmd) or current state (src) '+
                         'are published to the /joint_state topic.'),
 
+          DeclareLaunchArgument(name='use_rviz', default_value='true',
+                                choices=['true', 'false'],
+                                description='Choose if rviz is launched'),
+
           Node(package='unitree_legged_real',
                executable='udp_low',
                output='screen'),
@@ -40,6 +44,7 @@ def generate_launch_description():
                     launch_arguments=[
                          ('use_jsp', 'none'),
                          ('fixed_frame', 'world'),
-                         ('namespace', LaunchConfiguration('js_source'))
+                         ('namespace', LaunchConfiguration('js_source')),
+                         ('use_rviz', LaunchConfiguration('use_rviz'))
                     ])
     ])
