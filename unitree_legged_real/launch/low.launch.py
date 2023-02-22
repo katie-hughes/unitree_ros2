@@ -36,7 +36,7 @@ def generate_launch_description():
                PythonLaunchDescriptionSource(
                     PathJoinSubstitution([FindPackageShare('go1_description'),
                                                            'launch',
-                                                           'visualize.launch.py'])),
+                                                           'load_go1.launch.py'])),
                     launch_arguments=[
                          ('use_jsp', 'none'),
                          ('fixed_frame', 'world'),
