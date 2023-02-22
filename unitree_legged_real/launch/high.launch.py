@@ -39,7 +39,7 @@ def generate_launch_description():
             launch_arguments=[
                 ('use_jsp', 'none'),
                 ('fixed_frame', LaunchConfiguration('fixed_frame')),
-                ('enable_base_footprint', 'true'),
+                ('use_nav2_links', 'true'),
             ],
             condition=IfCondition(LaunchConfiguration('use_rviz'))
         ),

@@ -51,7 +51,7 @@ public:
       "RL_hip_joint",
       "RL_thigh_joint",
       "RL_calf_joint",
-      "base_to_footprint",
+      "height_to_footprint",
     };
 
     joint_states_.position = {};
@@ -80,7 +80,7 @@ private:
     for (int i=0; i < NUM_MOTORS; i++) {
       joint_states_.position[i] = state_.motor_state[i].q;
     }
-    joint_states_.position[13] = state_.body_height;
+    joint_states_.position[12] = state_.body_height;
 
 
     joint_states_.header.stamp = this->get_clock()->now();

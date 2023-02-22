@@ -3,7 +3,7 @@
 <robot name="go1" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
     <xacro:arg name="DEBUG" default="false"/>
-    <xacro:arg name="enable_base_footprint" default="false"/>
+    <xacro:arg name="use_nav2_links" default="false"/>
 
     <xacro:include filename="$(find go1_description)/xacro/const.xacro"/>
     <xacro:include filename="$(find go1_description)/xacro/materials.xacro"/>
@@ -38,14 +38,35 @@
         </visual>
     </link>
 
-    <xacro:if value="$(arg enable_base_footprint)">
+    <xacro:if value="$(arg use_nav2_links)">
+        <link name="base_link" />
+        <joint name="base_link_to_base" type="fixed">
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <parent link="base_link"/>
+            <child link="base"/>
+        </joint>
+
+        <link name="height_measurement" />
+        <!-- Measured empirically from difference between actual and reported body height -->
+        <joint name="base_link_to_height" type="fixed">
+            <origin rpy="0 0 0" xyz="0 0 -0.015"/>
+            <parent link="base_link"/>
+            <child link="height_measurement"/>
+        </joint>
         <link name="base_footprint" />
-        <joint name="base_to_footprint" type="prismatic">
-                <parent link="base"/>
+        <joint name="height_to_footprint" type="prismatic">
+                <parent link="height_measurement"/>
                 <child link="base_footprint"/>
                 <origin xyz = "0 0 0" rpy="0 0 0"/> 
-                <axis xyz="0 0 1" />
-                <limit effort="100000.0" lower="-1.0" upper="0.0" velocity="100000.0"/>
+                <axis xyz="0 0 -1" />
+                <limit effort="100000.0" lower="0.0" upper="1.0" velocity="100000.0"/>
+        </joint>
+        <link name="base_laser" />
+        <joint name="base_link_to_lidar" type="fixed">
+            <!-- TODO need to measure mounting or make this a parameter -->
+            <origin rpy="0 0 0" xyz="0 0 0.17"/>
+            <parent link="base_link"/>
+            <child link="base_laser"/>
         </joint>
     </xacro:if>
 

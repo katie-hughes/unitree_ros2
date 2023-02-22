@@ -23,9 +23,9 @@ def generate_launch_description():
           DeclareLaunchArgument(name='use_rviz', default_value='true',
                                 choices=['true', 'false'],
                                 description='Choose if rviz is launched'),
-          DeclareLaunchArgument(name='enable_base_footprint', default_value='false',
+          DeclareLaunchArgument(name='use_nav2_links', default_value='false',
                                 choices=['true', 'false'],
-                                description='Enable robot base footprint link'),
+                                description='Use Nav2 frames in URDF'),
           DeclareLaunchArgument(name='fixed_frame', default_value='base',
                                 description='Fixed frame for RVIZ'),
           DeclareLaunchArgument(name='namespace', default_value='',
@@ -61,12 +61,12 @@ def generate_launch_description():
                               Command([
                                    'xacro ',
                                    LaunchConfiguration('model'),
-                                   TextSubstitution(text=' enable_base_footprint:='),
-                                   LaunchConfiguration('enable_base_footprint'),
+                                   TextSubstitution(text=' use_nav2_links:='),
+                                   LaunchConfiguration('use_nav2_links'),
                               ]),
                               value_type=str
-                         )},
-                    {'frame_prefix': [LaunchConfiguration('namespace'), '/']
+                         ),
+                    'frame_prefix': [LaunchConfiguration('namespace'), '/']
                }],
                namespace=LaunchConfiguration('namespace')
           ),
