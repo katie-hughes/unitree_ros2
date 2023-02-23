@@ -57,7 +57,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /state/robot_description
+        Value: /cmd/robot_description
       Enabled: true
       Links:
         All Links Enabled: true
@@ -291,8 +291,8 @@ Visualization Manager:
       Mass Properties:
         Inertia: false
         Mass: false
-      Name: StateRobotModel
-      TF Prefix: state
+      Name: CmdRobotModel
+      TF Prefix: cmd
       Update Interval: 0
       Value: true
       Visual Enabled: true

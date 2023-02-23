@@ -9,22 +9,15 @@ from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetL
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.conditions import IfCondition
+from launch.conditions import IfCondition, LaunchConfigurationEquals
 
 
 def generate_launch_description():
      return LaunchDescription([
 
-          DeclareLaunchArgument(
-            name='enable_cmd',
-            default_value='false',
-            choices=['true','false'],
-            description='Determines whether to start a robot model '+
-                        'corresponding to the /low_cmd topic (i.e., desired positions)'),
-
-          DeclareLaunchArgument(name='use_rviz', default_value='true',
-                                choices=['true', 'false'],
-                                description='Choose if rviz is launched'),
+          DeclareLaunchArgument(name='display', default_value='all',
+                                choices=['all', 'state_only', 'cmd_only', 'none'],
+                                description='Choose which robot models you want to show in rviz.'),
 
           SetLaunchConfiguration(name='rviz_state_only',
                                  value=PathJoinSubstitution(
@@ -32,27 +25,28 @@ def generate_launch_description():
                                                      'config',
                                                      'state_only.rviz'])),
 
-          # Launch rviz
-          Node(package='rviz2',
-               executable='rviz2',
-               name='rviz2',
-               arguments=[
-                    '-d', LaunchConfiguration('rviz_state_only'),
-               ],
-               condition=IfCondition(LaunchConfiguration('use_rviz'))
-          ),
+          SetLaunchConfiguration(name='rviz_cmd_only',
+                                 value=PathJoinSubstitution(
+                                   [FindPackageShare('unitree_legged_real'),
+                                                     'config',
+                                                     'cmd_only.rviz'])),
+
+          SetLaunchConfiguration(name='rviz_all',
+                                 value=PathJoinSubstitution(
+                                   [FindPackageShare('unitree_legged_real'),
+                                                     'config',
+                                                     'state_and_cmd.rviz'])),
 
           # Always run the udp!
           Node(package='unitree_legged_real',
                executable='udp_low',
                output='screen'),
 
-          # Conditionally run the jsp's based on launch arguments
+          # Run two JSPs corresponding to real and commanded joint positions
           Node(package='unitree_legged_real',
                executable='jsp_low',
                parameters=[{"js_source": "cmd"}],
                namespace="cmd",
-               condition=IfCondition(LaunchConfiguration('enable_cmd')),
                output='screen'),
 
           Node(package='unitree_legged_real',
@@ -61,7 +55,7 @@ def generate_launch_description():
                namespace="state",
                output='screen'),
 
-          # Load robot models depending on enable_cmd
+          # Load robot models
           IncludeLaunchDescription(
                PythonLaunchDescriptionSource(
                     PathJoinSubstitution([FindPackageShare('go1_description'),
@@ -72,7 +66,6 @@ def generate_launch_description():
                          ('namespace', 'cmd'),
                          ('use_rviz', 'false')
                     ],
-               condition=IfCondition(LaunchConfiguration('enable_cmd'))
           ),
 
           IncludeLaunchDescription(
@@ -94,7 +87,34 @@ def generate_launch_description():
 
           Node(package="tf2_ros",
                executable="static_transform_publisher",
-               arguments=['--frame-id', 'world', '--child-frame-id', 'cmd/base', '--z', '0.5'],
-               condition=IfCondition(LaunchConfiguration('enable_cmd'))),
+               arguments=['--frame-id', 'world', '--child-frame-id', 'cmd/base', '--z', '0.5']),
+
+          # Launch rviz
+          Node(package='rviz2',
+               executable='rviz2',
+               name='rviz2',
+               arguments=[
+                    '-d', LaunchConfiguration('rviz_state_only'),
+               ],
+               condition=LaunchConfigurationEquals('display', 'state_only'),
+          ),
+
+          Node(package='rviz2',
+               executable='rviz2',
+               name='rviz2',
+               arguments=[
+                    '-d', LaunchConfiguration('rviz_cmd_only'),
+               ],
+               condition=LaunchConfigurationEquals('display', 'cmd_only'),
+          ),
+
+          Node(package='rviz2',
+               executable='rviz2',
+               name='rviz2',
+               arguments=[
+                    '-d', LaunchConfiguration('rviz_all'),
+               ],
+               condition=LaunchConfigurationEquals('display', 'all'),
+          ),
 
     ])
