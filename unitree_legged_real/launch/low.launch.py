@@ -87,5 +87,14 @@ def generate_launch_description():
                     ],
           ),
 
-          
+          # Connect tfs to a world frame
+          Node(package="tf2_ros",
+               executable="static_transform_publisher",
+               arguments=['--frame-id', 'world', '--child-frame-id', 'state/base', '--z', '0.5']),
+
+          Node(package="tf2_ros",
+               executable="static_transform_publisher",
+               arguments=['--frame-id', 'world', '--child-frame-id', 'cmd/base', '--z', '0.5'],
+               condition=IfCondition(LaunchConfiguration('enable_cmd'))),
+
     ])

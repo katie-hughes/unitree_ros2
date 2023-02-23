@@ -393,91 +393,94 @@ Visualization Manager:
           Value: false
         state/ultraSound_right:
           Value: false
+        world:
+          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: false
       Tree:
-        state/base:
-          state/trunk:
-            state/FL_hip:
-              state/FL_thigh:
-                state/FL_calf:
-                  state/FL_foot:
+        world:
+          state/base:
+            state/trunk:
+              state/FL_hip:
+                state/FL_thigh:
+                  state/FL_calf:
+                    state/FL_foot:
+                      {}
+                  state/FL_calf_rotor:
                     {}
-                state/FL_calf_rotor:
+                state/FL_thigh_rotor:
                   {}
-              state/FL_thigh_rotor:
+              state/FL_hip_rotor:
                 {}
-            state/FL_hip_rotor:
-              {}
-            state/FR_hip:
-              state/FR_thigh:
-                state/FR_calf:
-                  state/FR_foot:
+              state/FR_hip:
+                state/FR_thigh:
+                  state/FR_calf:
+                    state/FR_foot:
+                      {}
+                  state/FR_calf_rotor:
                     {}
-                state/FR_calf_rotor:
+                state/FR_thigh_rotor:
                   {}
-              state/FR_thigh_rotor:
+              state/FR_hip_rotor:
                 {}
-            state/FR_hip_rotor:
-              {}
-            state/RL_hip:
-              state/RL_thigh:
-                state/RL_calf:
-                  state/RL_foot:
+              state/RL_hip:
+                state/RL_thigh:
+                  state/RL_calf:
+                    state/RL_foot:
+                      {}
+                  state/RL_calf_rotor:
                     {}
-                state/RL_calf_rotor:
+                state/RL_thigh_rotor:
                   {}
-              state/RL_thigh_rotor:
+              state/RL_hip_rotor:
                 {}
-            state/RL_hip_rotor:
-              {}
-            state/RR_hip:
-              state/RR_thigh:
-                state/RR_calf:
-                  state/RR_foot:
+              state/RR_hip:
+                state/RR_thigh:
+                  state/RR_calf:
+                    state/RR_foot:
+                      {}
+                  state/RR_calf_rotor:
                     {}
-                state/RR_calf_rotor:
+                state/RR_thigh_rotor:
                   {}
-              state/RR_thigh_rotor:
+              state/RR_hip_rotor:
                 {}
-            state/RR_hip_rotor:
-              {}
-            state/camera_chin:
-              state/camera_optical_chin:
+              state/camera_chin:
+                state/camera_optical_chin:
+                  {}
+              state/camera_face:
+                state/camera_optical_face:
+                  {}
+              state/camera_left:
+                state/camera_laserscan_link_left:
+                  {}
+                state/camera_optical_left:
+                  {}
+              state/camera_rearDown:
+                state/camera_optical_rearDown:
+                  {}
+              state/camera_right:
+                state/camera_laserscan_link_right:
+                  {}
+                state/camera_optical_right:
+                  {}
+              state/imu_link:
                 {}
-            state/camera_face:
-              state/camera_optical_face:
+              state/ultraSound_face:
                 {}
-            state/camera_left:
-              state/camera_laserscan_link_left:
+              state/ultraSound_left:
                 {}
-              state/camera_optical_left:
+              state/ultraSound_right:
                 {}
-            state/camera_rearDown:
-              state/camera_optical_rearDown:
-                {}
-            state/camera_right:
-              state/camera_laserscan_link_right:
-                {}
-              state/camera_optical_right:
-                {}
-            state/imu_link:
-              {}
-            state/ultraSound_face:
-              {}
-            state/ultraSound_left:
-              {}
-            state/ultraSound_right:
-              {}
       Update Interval: 0
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: state/base
+    Fixed Frame: world
     Frame Rate: 30
   Name: root
   Tools:
