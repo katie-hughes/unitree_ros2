@@ -4,6 +4,9 @@
 
     <xacro:arg name="DEBUG" default="false"/>
     <xacro:arg name="use_nav2_links" default="false"/>
+    <xacro:arg name="lidar_x_offset" default="0.0525"/>
+    <xacro:arg name="lidar_y_offset" default="0.0"/>
+    <xacro:arg name="lidar_z_offset" default="0.21"/>
 
     <xacro:include filename="$(find go1_description)/xacro/const.xacro"/>
     <xacro:include filename="$(find go1_description)/xacro/materials.xacro"/>
@@ -64,7 +67,7 @@
         <link name="base_laser" />
         <joint name="base_link_to_lidar" type="fixed">
             <!-- TODO need to measure mounting or make this a parameter -->
-            <origin rpy="0 0 0" xyz="0 0 0.17"/>
+            <origin rpy="0 0 0" xyz="$(arg lidar_x_offset) $(arg lidar_y_offset) $(arg lidar_z_offset)"/>
             <parent link="base_link"/>
             <child link="base_laser"/>
         </joint>
