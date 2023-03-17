@@ -51,7 +51,7 @@ namespace UNITREE_LEGGED_SDK
 
 	typedef struct
 	{
-		std::array<float, 4> quaternion;               // quaternion, normalized, (w,x,y,z)
+		std::array<float, 4> quaternion;               // quaternion, normalized, (x,y,z,w)
 		std::array<float, 3> gyroscope;                // angular velocity （unit: rad/s)    (raw data)
 		std::array<float, 3> accelerometer;            // m/(s2)                             (raw data)
 		std::array<float, 3> rpy;                      // euler angle（unit: rad)
