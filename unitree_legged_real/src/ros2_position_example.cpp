@@ -80,7 +80,7 @@ int main(int argc, char **argv)
             low_cmd_ros.motor_cmd[FR_1].kp = 5.0;
             low_cmd_ros.motor_cmd[FR_1].kd = 1.0;
 
-            low_cmd_ros.motor_cmd[FL_2].q = calf_2;
+            low_cmd_ros.motor_cmd[FL_2].q = -M_PI / 2; // calf_2;
             low_cmd_ros.motor_cmd[FL_2].dq = 0.0;
             low_cmd_ros.motor_cmd[FL_2].kp = 5.0;
             low_cmd_ros.motor_cmd[FL_2].kd = 1.0;
@@ -93,7 +93,7 @@ int main(int argc, char **argv)
             low_cmd_ros.motor_cmd[FL_1].kp = 5.0;
             low_cmd_ros.motor_cmd[FL_1].kd = 1.0;
 
-            low_cmd_ros.motor_cmd[RR_2].q = calf_2;
+            low_cmd_ros.motor_cmd[RR_2].q = -M_PI / 2; // calf_2;
             low_cmd_ros.motor_cmd[RR_2].dq = 0.0;
             low_cmd_ros.motor_cmd[RR_2].kp = 5.0;
             low_cmd_ros.motor_cmd[RR_2].kd = 1.0;
@@ -106,7 +106,7 @@ int main(int argc, char **argv)
             low_cmd_ros.motor_cmd[RR_1].kp = 5.0;
             low_cmd_ros.motor_cmd[RR_1].kd = 1.0;
 
-            low_cmd_ros.motor_cmd[RL_2].q = calf_1;
+            low_cmd_ros.motor_cmd[RL_2].q = -M_PI / 2; // calf_1;
             low_cmd_ros.motor_cmd[RL_2].dq = 0.0;
             low_cmd_ros.motor_cmd[RL_2].kp = 5.0;
             low_cmd_ros.motor_cmd[RL_2].kd = 1.0;
