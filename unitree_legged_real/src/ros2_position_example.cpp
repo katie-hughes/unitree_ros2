@@ -57,15 +57,15 @@ int main(int argc, char **argv)
             low_cmd_ros.motor_cmd[RL_0].tau = +0.65f;
 
             // Edited to try moving all legs at the same time!
-            double calf_1 = -M_PI / 2; // + 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
-            double calf_2 = -M_PI / 2; // - 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+            double calf_1 = -M_PI / 2 + 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+            double calf_2 = -M_PI / 2 - 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
             // it has major issues with using the logger... idk why
             // std::cout << "calf_1:" << calf_1 << std::endl;
             double thigh_1 = 0; // + 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
             double thigh_2 = 0; // + -0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
             // std::cout << "thigh_1:" << thigh_1 << std::endl;
-            double hip_1 =  0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
-            double hip_2 = -0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+            double hip_1 = 0; // 0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
+            double hip_2 = 0; //-0.5 * sin(2 * M_PI / 5.0 * motiontime * 1e-3);
 
             low_cmd_ros.motor_cmd[FR_2].q = calf_1;
             low_cmd_ros.motor_cmd[FR_2].dq = 0.0;
