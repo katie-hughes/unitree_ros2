@@ -23,3 +23,23 @@ Again, before running any low level controls, ensure that the dog is safely rais
 ## High Level Executables:
 * `udp_high` - ROS2 C++ node for high level UDP pass command and state pass through. It subscribes to the `high_cmd` topic, converts these commands to a UDP message, and sends it to the Go1. It publishes state (received over UDP from the Go1) to the `high_state` topic.
 * `jsp_high` - ROS2 C++ node for high level joint state publishing. It subscribes to the `high_state` topic and publishes joint states present in the state message.
+
+## Dependencies
+This package is designed to run on Ubuntu 22.04 with ROS 2 Humble. In addition to these standard ROS dependencies, there are also dependencies needed to build the Unitree Legged SDK.
+### lcm 1.4.0
+* Download lcm version 1.4.0 from [lcm releases](https://github.com/lcm-proj/lcm/releases) and unzip.
+* For this version of lcm, you need java openjdk 8. Don't uninstall other versions of openjdk! This can interfere with your installation of ROS 2. Instead, do the following: 
+```
+sudo apt install openjdk-8-jdk
+sudo update-alternatives --config javac
+# choose the java-8-openjdk option
+cd lcm-1.4.0
+mkdir build
+cd build
+cmake ..
+make
+sudo make install # this will install lcm
+sudo ldconfig -v # updates the shared library cache
+# after this, revert back to the previous version of openjdk:
+sudo update-alternatives --config javac # and choose whichever version was selected previously (typically java-11-openjdk)
+```
