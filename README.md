@@ -13,6 +13,19 @@ This is a set of ROS2 packages designed to control the Unitree Go1 robot. This r
    (If running the low level controls, ensure that the dog is raised off the ground in the harness before executing the next steps!! Before raising it off the floor, you will need to press L2+A to sit the robot down and then L1+L2+start to put the robot into the correct mode -- otherwise, the robot will flail its legs when it leaves the floor.)
 
 4. To load the robot and connect to it via UDP communication, run `ros2 launch unitree_legged_real low.launch.py` (low level controls) or `ros2 launch unitree_legged_real high.launch.py` (high level controls).
+### Alternative: Docker
+<details>
+<summary>Installing Docker (one time setup):</summary>
+<br>
+If you don't have Docker, install it with `sudo apt install docker.io`. You will have to add yourself to the Docker user group with `sudo usermod -aG docker $USER`, then run `newgrp docker` to avoid permission errors with Docker daemon. You will also to run `xhost +local:docker` on your first time to allow Docker to connect to gui-based application. You will need to log out and log back in for these changes to take effect on your system.
+</details>
+
+
+To build the container, run `./build.sh`
+
+To start the container, run `./run.sh`
+
+Note: This is untested on a robot, but builds correctly :)
 
 ## Low Level Executables:
 Again, before running any low level controls, ensure that the dog is safely raised off the ground in the harness.
