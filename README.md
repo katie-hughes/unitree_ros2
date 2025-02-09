@@ -43,3 +43,17 @@ sudo ldconfig -v # updates the shared library cache
 # after this, revert back to the previous version of openjdk:
 sudo update-alternatives --config javac # and choose whichever version was selected previously (typically java-11-openjdk)
 ```
+
+### Alternative: Docker
+<details>
+<summary>Installing Docker (one time setup):</summary>
+<br>
+If you don't have Docker, install it with `sudo apt install docker.io`. You will have to add yourself to the Docker user group with `sudo usermod -aG docker $USER`, then run `newgrp docker` to avoid permission errors with Docker daemon. You will also to run `xhost +local:docker` on your first time to allow Docker to connect to gui-based application. You will need to log out and log back in for these changes to take effect on your system.
+</details>
+
+
+To build the container, run `./build.sh`
+
+To start the container, run `./run.sh`
+
+Note: This is untested on a robot, but builds correctly :)
